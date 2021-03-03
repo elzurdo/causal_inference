@@ -3,14 +3,14 @@
 #
 # > *Assume that a population of patients contains a fraction r of individuals who suffer from
 # a certain fatal syndrome Z, which simultaneously makes it uncomfortable for them to take
-# a life-prolonging drug X (Figure 1.10). Let Z = z1 and Z = z0 represent, respectively, the
-# presence and absence of the syndrome, Y = y1 and Y = y0 represent death and survival,
-# respectively, and X = x1 and X = x0 represent taking and not taking the drug. Assume that
-# patients not carrying the syndrome, Z = z0, die with probability p2 if they take the drug
-# and with probability p1 if they don’t. Patients carrying the syndrome, Z = z1, on the other
-# hand, die with probability p3 if they do not take the drug and with probability p4 if they do
+# a life-prolonging drug X (Figure 1.10). Let $Z = z_1$ and $Z = z_0$ represent, respectively, the
+# presence and absence of the syndrome, $Y = y_1$ and $Y = y_0$ represent death and survival,
+# respectively, and $X = x_1$ and $X = x_0$ represent taking and not taking the drug. Assume that
+# patients not carrying the syndrome, $Z = z_0$, die with probability $p_2$ if they take the drug
+# and with probability $p_1$ if they don’t. Patients carrying the syndrome, $Z = z_1$, on the other
+# hand, die with probability $p_3$ if they do not take the drug and with probability $p_4$ if they do
 # take the drug. Further, patients having the syndrome are more likely to avoid the drug, with
-# probabilities $q_1 = P(x_1|z_0) and q_2 = P(x_1 |z_1 )$.*
+# probabilities $q_1 = P(x_1|z_0)$ and $q_2 = P(x_1 |z_1 )$.*
 #
 # $$Y \leftarrow X \leftarrow Z \rightarrow Y$$
 #
@@ -82,6 +82,7 @@
 # |$x_1$|$y_1$|$z_0$|$1-r$|$q_1$|$p_2$|$p_2q_1(1-r)$|
 # |$x_1$|$y_1$|$z_1$| $r$ |$q_2$|$p_4$|$p_4q_2r$|
 #
+#
 # Note that here I use:  
 # $P(x_0|z_0) + P(x_1|z_0) = 1 \rightarrow P(x_0|z_0) = 1-q_1$,     
 # $P(x_0|z_1) + P(x_1|z_1) = 1 \rightarrow P(x_0|z_1) = 1-q_2$.   
@@ -90,10 +91,8 @@
 #
 # ## $P(x,y)$
 #
-# Here we will use the 
-#
-# The Law Of Total Probability
-# For any set of events $B_1, ...,B_n$ such that exactly one of the vents must be true (an exhaustive, mutually exclusive set, called a *partition*) we have
+# Here we will use the *The Law Of Total Probability*.  
+# For any set of events $B_1, ...,B_n$ such that exactly one of the events must be true (an exhaustive, mutually exclusive set, called a *partition*) we have
 #
 # $$P(A) = P(A,B_1) + ... + P(A,B_n)$$
 #
@@ -111,7 +110,7 @@
 # |$x_0$|$y_0$|$(1-r)(1-q_1)(1-p_1)$|$r(1-q_2)(1-p_3)$|
 # |$x_0$|$y_1$|$(1-r)(1-q_1)p_1$| $r(1-q_2)p_3$
 # |$x_1$|$y_0$|$(1-r)q_1(1-p_2)$| $rq_2(1-p_4)$
-# |$x_1$|$y_1$|$p_2q_1(1-r)$|$p_4q_2r$|$p_4q_2r$
+# |$x_1$|$y_1$|$p_2q_1(1-r)$|$p_4q_2r$|
 
 # ## $P(x, z)$
 #
@@ -178,7 +177,27 @@
 #
 # ## Whole Population
 #
-# TBD
+# $$P(y_1|x_1) - P(y_1|x_0)$$
+#
+# We use
+#
+# $$P(y|x) = \frac{P(x,y)}{P(x)} = \sum_z \frac{P(x,y,z)}{P(x)}$$  
+#
+# and 
+#
+#
+# $$P(x) = P(x,z_0) + P(x, z_1) = P(x|z_0)P(z_0) + P(x|z_1)P(z_1)$$  
+#
+# Hence we have  
+#
+# $$P(x_0) = P(x_0|z_0)P(z_0) + P(x_0|z_1)P(z_1) = (1-q_1)(1-r) + (1-q_2)r$$ 
+# $$P(x_1) = P(x_1|z_0)P(z_0) + P(x_1|z_1)P(z_1) = q_1(1-r) + q_2r$$ 
+#
+#
+# Resulting in:  
+#
+# $$P(y_1|x_1) - P(y_1|x_0) = \\ \sum_{z=z_0, z_1} \frac{P(x_1,y_1,z)}{P(x_1)} - \frac{P(x_0,y_1,z)}{P(x_0)} = \frac{p_2q_1(1-r) + p_4q_2r}{q_1(1-r) + q_2r} - \frac{(1-r)(1-q_1)p_1 + r(1-q_2)p_3}{(1-q_1)(1-r) + (1-q_2)r}
+# $$
 
 # # (c) 
 #
