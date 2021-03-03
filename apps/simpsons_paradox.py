@@ -27,10 +27,8 @@ system_mode
 
 ## Simpon's *"Paradox"*
 
-[description of the paradox]
-
 There is an interesting numerical quirk that may arise in an analysis, where 
-the results for a population appears to differ substantially than its subsets.  
+the results for a population appears to differ substantially than those of its subsets.  
 
 For example, imagine that you are analysing the recovery rate of a treatment, where
 patients are separated to treatment and control groups. 
@@ -146,57 +144,78 @@ pd.DataFrame({0: [male_treatment_success, male_control_success, "male", True],
 df
 
 
-f"""
-In this mock sample we have a total population of {people:,} split into {treatments:,}  
-who receive treatment and {controls:,} who do not (control). 
-
-We also have a gender information with a total of {males:,} males and {females:,}
-"""
-
 rd_population = (male_treatment_success + female_treatment_success)/ treatments -  (male_control_success + female_control_success)/controls
 
 ace = male_treatment_success / males_treatment * males_frac + female_treatment_success / females_treatment * (1. - males_frac)
 ace -= male_control_success / males_control * males_frac + female_control_success / females_control * (1. - males_frac)
 
-show_derivation = st.checkbox('Show derivation')
 
-"Risk Difference of the full population:"
-equation = r'''RD Population = 
+f"""
+In this mock sample we have a total population of {people:,} split into {treatments:,}  
+who receive treatment and {controls:,} who do not (control). 
+
+We also have gender information with a total of {males:,} males and {females:,}.  
+
+Let's look at their treatment success rates:  
+* males: {male_treatment_r * 100:0.1f}% for treatment and {male_control_r * 100:0.1f}% for control --> {(male_treatment_r-male_control_r)*100.:0.1f}% difference
+* females: {female_treatment_r * 100:0.1f}% for treatment and {female_control_r * 100:0.1f}% for control --> {(female_treatment_r-female_control_r)*100.:0.1f}% difference
+
+If we joint all the result together, however, we obtain a negative result of {rd_population * 100:0.1f}%! 
+
+In other words  
+* The treatment of males improves the recovery rates by an absolute {(male_treatment_r-male_control_r)*100.:0.1f}%
+* The treatment of females improves the recovery rates by an absolute {(female_treatment_r-female_control_r)*100.:0.1f}%
+* The treatment of everyone reduces the recovery rates by an absolute {np.abs(rd_population) * 100:0.1f}%
+
+Clearly this last statement does not make sense!  
+
+This is the essence of the paradox. 
+
+The solution? Like any magician will tell you, it's about perception ... 
+Let's see what we are missing. 
+
+"""
+
+show_derivation = st.checkbox('Show full derivations')
+
+equation_rd = r'''RD Population = 
 $$P(\text{recovery}|\text{treatment}) - P(\text{recovery}|\text{control})$$
 '''
-
-equation += f" = {rd_population:0.2f}"
-
-equation
+equation_rd += f" = {rd_population:0.2f}"
 
 equation_numerical = f"Population := ({male_treatment_success} + {female_treatment_success})/({treatments}) - ({male_control_success} + {female_control_success})/({controls})"
 equation_numerical += f"= \n{(male_treatment_success + female_treatment_success)/ treatments:0.2f} - {(male_control_success + female_control_success)/controls:0.2f}"
 equation_numerical += f"= {rd_population:0.2f}"
 
-if show_derivation:
-	equation_numerical
-
-
 equation_gender = r'''RD Stratum = 
 $$P(\text{recovery}|\text{treatment, stratum}) - P(\text{recovery}|\text{control, stratum})$$
 '''
 
-equation_gender
-
-equation_numerical_male = f"RD Males = {male_treatment_success}/{males_treatment} - {male_control_success}/{males_control}"
-equation_numerical_male += f"= {male_treatment_success/males_treatment:0.2f} - {male_control_success/males_control:0.2f}"
-equation_numerical_male += f"= {male_treatment_success/males_treatment - male_control_success/males_control:0.2f}"
-
-equation_numerical_male
-
-equation_numerical_female = f"RD Females = {female_treatment_success}/{females_treatment} - {female_control_success}/{females_control}"
-equation_numerical_female += f"= {female_treatment_success/females_treatment:0.2f} - {female_control_success/females_control:0.2f}"
-equation_numerical_female += f"= {female_treatment_success/females_treatment - female_control_success/females_control:0.2f}"
-
-equation_numerical_female
-
 equation_ace = r"$$ACE = P(\text{recovery}|do(\text{treatment})) - P(\text{recovery}|do(\text{control}))$$"
 equation_ace += f"={ace:0.2f}"
+
+if show_derivation:
+    "Risk Difference of the full population:"
+    st.write(equation_rd)
+    st.latex(equation_numerical)
+
+if show_derivation:
+    equation_gender
+
+    equation_numerical_male = f"RD Males = {male_treatment_success}/{males_treatment} - {male_control_success}/{males_control}"
+    equation_numerical_male += f"= {male_treatment_success/males_treatment:0.2f} - {male_control_success/males_control:0.2f}"
+    equation_numerical_male += f"= {male_treatment_success/males_treatment - male_control_success/males_control:0.2f}"
+
+    equation_numerical_male
+
+    equation_numerical_female = f"RD Females = {female_treatment_success}/{females_treatment} - {female_control_success}/{females_control}"
+    equation_numerical_female += f"= {female_treatment_success/females_treatment:0.2f} - {female_control_success/females_control:0.2f}"
+    equation_numerical_female += f"= {female_treatment_success/females_treatment - female_control_success/females_control:0.2f}"
+
+    equation_numerical_female
+
+
+
 equation_ace
 
 equation_ace_drivation = r"$$= P(\text{recovery}|\text{treatment, male})P(\text{male}) + P(\text{recovery}|\text{treatment, female})P(\text{female})$$"
