@@ -8,7 +8,7 @@ import pandas as pd
 # from pywaffle import Waffle
 
 
-import daft
+# import daft
 
 
 paradox_mode = "Paradox"
@@ -230,15 +230,15 @@ adjustment ...
 
 # --- Graphical model approahch  
 
-pgm = daft.PGM(aspect=1.2, node_unit=1.75)
-pgm.add_node("cloudy", r"Gender", 3, 3)
-pgm.add_node("rain", r"Treatment", 2, 2)
-pgm.add_node("sprinkler", r"Recovery", 4, 2)
-pgm.add_edge("cloudy", "rain")
-pgm.add_edge("cloudy", "sprinkler")
-pgm.add_edge("rain", "sprinkler")
-pgm.render()
-st.pyplot(pgm)
+# pgm = daft.PGM(aspect=1.2, node_unit=1.75)
+# pgm.add_node("cloudy", r"Gender", 3, 3)
+# pgm.add_node("rain", r"Treatment", 2, 2)
+# pgm.add_node("sprinkler", r"Recovery", 4, 2)
+# pgm.add_edge("cloudy", "rain")
+# pgm.add_edge("cloudy", "sprinkler")
+# pgm.add_edge("rain", "sprinkler")
+# pgm.render()
+# st.pyplot(pgm)
 
 """
 Note that this tutorial is aimed to be interactive and hence you can change the results to explore different outcomes. 
