@@ -17,26 +17,25 @@ diy_mode = "Do it yourself!"
 
 system_mode = st.sidebar.radio('Mode', [paradox_mode, standard_mode, diy_mode])
 
-system_mode
-
-
-""" 
----
-
-
-
-## Simpon's *"Paradox"*
+f""" 
+## Simpson's *"Paradox"*
 
 There is an interesting numerical quirk that may arise in an analysis, where 
-the results for a population appears to differ substantially than those of its subsets.  
+ results of a population contradict with those of subpopulations.  
 
 For example, imagine that you are analysing the recovery rate of a drug, where
 patients are separated to treatment and control groups. 
 
-You find that for the male participants the treatment group performs better than the control. Analysing the females you have the a similar finding.  But when you aggregate all the results you get the exact opposite finding!
+You find that treatment group of the males performs better than the control. Same for the females.  Curiously, though, when you aggregate all the results you get the exact opposite finding!
 
 Let's examine the following table containing mock results to better understand 
-the problem ... and its solution.
+the problem ... and its solution. 
+
+Spoiler alert: the resolution involves understanding 
+and dealing with confounding factors, which we will dive into.
+
+Also: This is an interactive demo! I find it useful to play around with numbers to solidfy my understanding.
+Feel free to explore this topic by playing with the dials on the right. For this first stage remain in ***{paradox_mode}*** mode.
 """
 
 
@@ -49,13 +48,11 @@ male_treatment_frac_paradox = 0.2
 male_treatment_success_rate_paradox = 0.8
 female_treatment_success_rate_paradox = 0.4
 
-if "Do it yourself!" == system_mode:
-    treatments = np.int(st.sidebar.number_input('Treatments:', format="%d", value=treatments_default))
-    controls = np.int(st.sidebar.number_input('Controls:', format="%d", value=treatments))
 
-else:
-    treatments = treatments_default
-    controls = treatments
+treatments = np.int(st.sidebar.number_input('Treatments:', format="%d", value=treatments_default))
+controls = np.int(st.sidebar.number_input('Controls:', format="%d", value=treatments))
+
+show_derivation = st.sidebar.checkbox('Show full derivations')
 
 people = treatments + controls
 
@@ -149,23 +146,58 @@ rd_population = (male_treatment_success + female_treatment_success)/ treatments 
 ace = male_treatment_success / males_treatment * males_frac + female_treatment_success / females_treatment * (1. - males_frac)
 ace -= male_control_success / males_control * males_frac + female_control_success / females_control * (1. - males_frac)
 
+equation_rd = r'''
+$$P(\text{recovery=True}|\text{treatment}) - P(\text{recovery=True}|\text{control})$$
+'''
+# equation_rd += f" = {rd_population:0.2f}"
 
 f"""
 In this mock sample we have a total population of {people:,} split into {treatments:,}  
 who receive treatment and {controls:,} who do not (control). 
 
-We also have gender information with a total of {males:,} males and {females:,}.  
+We also have gender information with a total of {males:,} males and {females:,} females.  
 
-Let's look at their treatment success rates:  
+We will use the *Risk Difference* to describe success rates, defined as:  
+{equation_rd}
+
+For each gender individually we obtain:    
 * males: {male_treatment_r * 100:0.1f}% for treatment and {male_control_r * 100:0.1f}% for control --> {(male_treatment_r-male_control_r)*100.:0.1f}% difference
 * females: {female_treatment_r * 100:0.1f}% for treatment and {female_control_r * 100:0.1f}% for control --> {(female_treatment_r-female_control_r)*100.:0.1f}% difference
 
-If we joint all the result together, however, we obtain a negative result of {rd_population * 100:0.1f}%! 
+"""
 
+equation_numerical_male = f"{male_treatment_success}/{males_treatment} - {male_control_success}/{males_control}"
+equation_numerical_male += f"= {male_treatment_success / males_treatment:0.2f} - {male_control_success / males_control:0.2f}"
+equation_numerical_male += f"= {male_treatment_success / males_treatment - male_control_success / males_control:0.2f}"
+
+equation_numerical_female = f"{female_treatment_success}/{females_treatment} - {female_control_success}/{females_control}"
+equation_numerical_female += f"= {female_treatment_success / females_treatment:0.2f} - {female_control_success / females_control:0.2f}"
+equation_numerical_female += f"= {female_treatment_success / females_treatment - female_control_success / females_control:0.2f}"
+
+equation_numerical = f"({male_treatment_success} + {female_treatment_success})/({treatments}) - ({male_control_success} + {female_control_success})/({controls})"
+equation_numerical += f"= \n{(male_treatment_success + female_treatment_success)/ treatments:0.2f} - {(male_control_success + female_control_success)/controls:0.2f}"
+equation_numerical += f"= {rd_population:0.2f}"
+
+
+if show_derivation:
+    "Risk Difference derivations"
+    st.latex("Males := " + equation_numerical_male)
+
+
+    st.latex("Females := " + equation_numerical_female)
+
+f"""
+If we join all the results together, however, we obtain a negative result of {rd_population * 100:0.1f}%! 
+"""
+
+if show_derivation:
+    st.latex("Population := " + equation_numerical)
+
+f"""
 In other words  
 * The treatment of males improves the recovery rates by an absolute {(male_treatment_r-male_control_r)*100.:0.1f}%
 * The treatment of females improves the recovery rates by an absolute {(female_treatment_r-female_control_r)*100.:0.1f}%
-* The treatment of everyone reduces the recovery rates by an absolute {np.abs(rd_population) * 100:0.1f}%
+* The treatment of everyone **reduces** the recovery rates by an absolute {np.abs(rd_population) * 100:0.1f}%
 
 Clearly this last statement does not make sense!  
 
@@ -174,18 +206,30 @@ This is the essence of the paradox.
 The solution? Like any magician will tell you, it's about perception ... 
 Let's see what we are missing. 
 
+*Suggestion*: Play with the **Controls** values on the left to see how the values change,
+while the conclusion remains that same.   
+
 """
 
-show_derivation = st.checkbox('Show full derivations')
+"""
+---
+## The Problem: Confounding Factors 
 
-equation_rd = r'''RD Population = 
-$$P(\text{recovery}|\text{treatment}) - P(\text{recovery}|\text{control})$$
-'''
-equation_rd += f" = {rd_population:0.2f}"
+Examine the data again  
 
-equation_numerical = f"Population := ({male_treatment_success} + {female_treatment_success})/({treatments}) - ({male_control_success} + {female_control_success})/({controls})"
-equation_numerical += f"= \n{(male_treatment_success + female_treatment_success)/ treatments:0.2f} - {(male_control_success + female_control_success)/controls:0.2f}"
-equation_numerical += f"= {rd_population:0.2f}"
+"""
+
+df
+
+"""
+
+Upon a close look you'll notice two key issues:
+* The males and females were not equality distributed between treatment and control
+* The males and females had different success rates for the treatment and control groups (even though they had the same )   
+
+## The Solution: Adjusting For Confounding Factors
+
+"""
 
 equation_gender = r'''RD Stratum = 
 $$P(\text{recovery}|\text{treatment, stratum}) - P(\text{recovery}|\text{control, stratum})$$
@@ -194,25 +238,7 @@ $$P(\text{recovery}|\text{treatment, stratum}) - P(\text{recovery}|\text{control
 equation_ace = r"$$ACE = P(\text{recovery}|do(\text{treatment})) - P(\text{recovery}|do(\text{control}))$$"
 equation_ace += f"={ace:0.2f}"
 
-if show_derivation:
-    "Risk Difference of the full population:"
-    st.write(equation_rd)
-    st.latex(equation_numerical)
 
-if show_derivation:
-    equation_gender
-
-    equation_numerical_male = f"RD Males = {male_treatment_success}/{males_treatment} - {male_control_success}/{males_control}"
-    equation_numerical_male += f"= {male_treatment_success/males_treatment:0.2f} - {male_control_success/males_control:0.2f}"
-    equation_numerical_male += f"= {male_treatment_success/males_treatment - male_control_success/males_control:0.2f}"
-
-    equation_numerical_male
-
-    equation_numerical_female = f"RD Females = {female_treatment_success}/{females_treatment} - {female_control_success}/{females_control}"
-    equation_numerical_female += f"= {female_treatment_success/females_treatment:0.2f} - {female_control_success/females_control:0.2f}"
-    equation_numerical_female += f"= {female_treatment_success/females_treatment - female_control_success/females_control:0.2f}"
-
-    equation_numerical_female
 
 
 
