@@ -30,13 +30,13 @@ system_mode
 There is an interesting numerical quirk that may arise in an analysis, where 
 the results for a population appears to differ substantially than those of its subsets.  
 
-For example, imagine that you are analysing the recovery rate of a treatment, where
+For example, imagine that you are analysing the recovery rate of a drug, where
 patients are separated to treatment and control groups. 
 
 You find that for the male participants the treatment group performs better than the control. Analysing the females you have the a similar finding.  But when you aggregate all the results you get the exact opposite finding!
 
 Let's examine the following table containing mock results to better understand 
-the problem ... and its solution!
+the problem ... and its solution.
 """
 
 
