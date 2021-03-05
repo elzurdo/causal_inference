@@ -238,9 +238,9 @@ But in our case we see that:
 In the treatment group there are {males_treatment:,} males and {females_treatment:,} females.  
 In the control group there are {males_control:,} males and {females_control:,} females.
 
-This means that the treatment depends on the gender.  
+This means that being assigned treatment or control depends on the gender.  
 
-If we draw a *Graphical Model* where nodes are parameters and arrows are their relationships, 
+If we draw a *Graphical Model* where nodes are parameters and vertices are their relationships, 
 we should expect the following:  
 """
 
@@ -249,17 +249,54 @@ we should expect the following:
 # --- Graphical model approahch
 if daft:
     pgm = daft.PGM(aspect=1.2, node_unit=1.75)
-    pgm.add_node("cloudy", r"Gender", 3, 3)
-    pgm.add_node("rain", r"Treatment", 2, 2)
-    pgm.add_node("sprinkler", r"Recovery", 4, 2)
-    pgm.add_edge("cloudy", "rain")
-    pgm.add_edge("cloudy", "sprinkler")
-    pgm.add_edge("rain", "sprinkler")
+    pgm.add_node("gender", r"Gender", 3, 3)
+    pgm.add_node("group", r"Group", 2, 2)
+    pgm.add_node("outcome", r"Outcome", 4, 2)
+    pgm.add_edge("gender", "group")
+    pgm.add_edge("gender", "outcome")
+    pgm.add_edge("group", "outcome")
+    pgm.render()
+    st.pyplot(pgm)
+
+"""
+The vertices have arrows indicating, e.g, that group assignment depends on the gender.  
+As a side note a robot that specialises in correlations would not know how to decide the direction, 
+this is domain expertise that we contribute to the model. We will discuss this top further later on.
+
+There are two more arrows pointing toward *Recovery*. We know the direction because the Gender 
+and Treatment do not depend on the Recovery. (Again, this sort of statement sounds trivial 
+in layman terms, but it is modelling it is a power device to go beyond correlations.)
+
+If we agree that this is our model, it is clear that Gender is a confounding factor. 
+The recovery success depends both on gender and the group assigned, where the group 
+assignment depends on gender.   
+
+Now that we know that Gender is a confounding factor, we can use this information to 
+solve for the apparent paradox.  
+
+"""
+
+if daft:
+    pgm = daft.PGM(aspect=1.2, node_unit=1.75)
+    pgm.add_node("gender", r"Gender", 3, 3)
+    pgm.add_node("group", r"Group", 2, 2)
+    pgm.add_node("outcome", r"Outcome", 4, 2)
+    pgm.add_edge("gender", "outcome")
+    pgm.add_edge("group", "outcome")
     pgm.render()
     st.pyplot(pgm)
 
 
+
 """
+
+For later:   
+It is important to note here that we applied our common sense, and hence subjectivity. 
+A robot, e.g, would examine the relationships between the groups selection (treatment or control) 
+and gender (male or female) and would conclude that they are correlated. As causation, 
+that required an expert drawing an arrow on the vertex between the nodes.
+
+
 Here we see that *Recovery* depends both on *Treatment* **and** on *Gender*.  
 What makes *Gender* and confounding factor is the fact that *Treatment* depends on 
 *Gender*, too. 
