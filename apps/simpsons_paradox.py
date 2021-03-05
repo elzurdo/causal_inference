@@ -7,9 +7,10 @@ import pandas as pd
 # import matplotlib.pyplot as plt
 # from pywaffle import Waffle
 
-
-# import daft
-
+try:
+    import daft
+except:
+    daft = None
 
 paradox_mode = "Paradox"
 standard_mode = "Standard"
@@ -31,11 +32,11 @@ You find that treatment group of the males performs better than the control. Sam
 Let's examine the following table containing mock results to better understand 
 the problem ... and its solution. 
 
-Spoiler alert: the resolution involves understanding 
+*Spoiler alert:* the resolution involves understanding 
 and dealing with confounding factors, which we will dive into.
 
 Also: This is an interactive demo! I find it useful to play around with numbers to solidfy my understanding.
-Feel free to explore this topic by playing with the dials on the right. For this first stage remain in ***{paradox_mode}*** mode.
+Feel free to explore this topic by playing with the dials on the left. For this first stage remain in ***{paradox_mode}*** mode.
 """
 
 
@@ -160,7 +161,7 @@ We also have gender information with a total of {males:,} males and {females:,} 
 We will use the *Risk Difference* to describe success rates, defined as:  
 {equation_rd}
 
-For each gender individually we obtain:    
+For each gender we recovery rates and Risk Differences:    
 * males: {male_treatment_r * 100:0.1f}% for treatment and {male_control_r * 100:0.1f}% for control --> {(male_treatment_r-male_control_r)*100.:0.1f}% difference
 * females: {female_treatment_r * 100:0.1f}% for treatment and {female_control_r * 100:0.1f}% for control --> {(female_treatment_r-female_control_r)*100.:0.1f}% difference
 
@@ -187,7 +188,7 @@ if show_derivation:
     st.latex("Females := " + equation_numerical_female)
 
 f"""
-If we join all the results together, however, we obtain a negative result of {rd_population * 100:0.1f}%! 
+If we join all the results together, however, we obtain a negative Risk Difference of {rd_population * 100:0.1f}%! 
 """
 
 if show_derivation:
@@ -195,9 +196,9 @@ if show_derivation:
 
 f"""
 In other words  
-* The treatment of males improves the recovery rates by an absolute {(male_treatment_r-male_control_r)*100.:0.1f}%
-* The treatment of females improves the recovery rates by an absolute {(female_treatment_r-female_control_r)*100.:0.1f}%
-* The treatment of everyone **reduces** the recovery rates by an absolute {np.abs(rd_population) * 100:0.1f}%
+* The treatment of males improves the recovery rate by an absolute {(male_treatment_r-male_control_r)*100.:0.1f}%
+* The treatment of females improves the recovery rate by an absolute {(female_treatment_r-female_control_r)*100.:0.1f}%
+* The treatment of everyone **reduces** the recovery rate by an absolute {np.abs(rd_population) * 100:0.1f}%
 
 Clearly this last statement does not make sense!  
 
@@ -209,23 +210,59 @@ Let's see what we are missing.
 *Suggestion*: Play with the **Controls** values on the left to see how the values change,
 while the conclusion remains that same.   
 
-"""
-
-"""
----
-## The Problem: Confounding Factors 
-
-Examine the data again  
-
+For your convenience here is the same data and results:
 """
 
 df
 
+
+f"""
+---
+## The Problem: Confounding Factors 
+
+Upon a examination look you'll notice two interesting aspects:
+* Uneven distributions of the genders amongst the treatment and control groups.
+* Even though males and females have the same Risk Difference each group has a different success rate.
+
+The first point is the crucial one to understanding the difference between our scenario 
+to what is common practice in *Random Control Trials* (RCT), which are considered the golden 
+standard for quantifying the utility of a treatment.    
+
+Whereas in a RCT, if we suspect different rates of recovery from a demographic, e.g, in 
+our case gender, we would expect a 50% split in the distribution of participants.  
+
+E.g, we would expect in the treatment to be {int(treatments/2):} males and {int(treatments/2)} females, 
+and in the control group to be {int(controls/2)} males and {int(controls/2)} females.  
+
+But in our case we see that:  
+In the treatment group there are {males_treatment:,} males and {females_treatment:,} females.  
+In the control group there are {males_control:,} males and {females_control:,} females.
+
+This means that the treatment depends on the gender.  
+
+If we draw a *Graphical Model* where nodes are parameters and arrows are their relationships, 
+we should expect the following:  
 """
 
-Upon a close look you'll notice two key issues:
-* The males and females were not equality distributed between treatment and control
-* The males and females had different success rates for the treatment and control groups (even though they had the same )   
+
+
+# --- Graphical model approahch
+if daft:
+    pgm = daft.PGM(aspect=1.2, node_unit=1.75)
+    pgm.add_node("cloudy", r"Gender", 3, 3)
+    pgm.add_node("rain", r"Treatment", 2, 2)
+    pgm.add_node("sprinkler", r"Recovery", 4, 2)
+    pgm.add_edge("cloudy", "rain")
+    pgm.add_edge("cloudy", "sprinkler")
+    pgm.add_edge("rain", "sprinkler")
+    pgm.render()
+    st.pyplot(pgm)
+
+
+"""
+Here we see that *Recovery* depends both on *Treatment* **and** on *Gender*.  
+What makes *Gender* and confounding factor is the fact that *Treatment* depends on 
+*Gender*, too. 
 
 ## The Solution: Adjusting For Confounding Factors
 
@@ -261,29 +298,7 @@ if show_derivation:
 	equation_ace_numerical
 
 
-f"""
-The solution lies in the fact that we have:  
-* uneven distributions of the genders amongst treatment and control
-* different success rates between the genders  
 
-In the treatment group there are {males_treatment:,} males and {females_treatment:,} and 
-the complementary {males_control:,} males, {females_control:,} females in the control group
-
-
-adjustment ...
-"""
-
-# --- Graphical model approahch  
-
-# pgm = daft.PGM(aspect=1.2, node_unit=1.75)
-# pgm.add_node("cloudy", r"Gender", 3, 3)
-# pgm.add_node("rain", r"Treatment", 2, 2)
-# pgm.add_node("sprinkler", r"Recovery", 4, 2)
-# pgm.add_edge("cloudy", "rain")
-# pgm.add_edge("cloudy", "sprinkler")
-# pgm.add_edge("rain", "sprinkler")
-# pgm.render()
-# st.pyplot(pgm)
 
 """
 Note that this tutorial is aimed to be interactive and hence you can change the results to explore different outcomes. 
