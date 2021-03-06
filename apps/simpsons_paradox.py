@@ -25,9 +25,12 @@ f"""
 
 
 if diy_mode != system_mode:
-    f"(For a less verbose version of the demo use the ***{diy_mode}*** mode by using the radio button on the left sidebar.)"
+    alt_mode = str(diy_mode)
+    verbosity_type = "less verbose"
 else:
-    f"(For a verbose version of the demo use the ***{paradox_mode}*** mode by using the radio button on the left sidebar.)"
+    alt_mode = str(paradox_mode)
+    verbosity_type = "verbose"
+f"(For a {verbosity_type} version of the demo change to the ***{alt_mode}*** mode on the radio button in the left sidebar.)"
 
 
 
@@ -92,7 +95,7 @@ females = people - males
 
 # --- Treatment split by gender ---
 if  diy_mode == system_mode:
-    males_treatment_frac = st.sidebar.slider(f"males fraction of treatment ({treatments:,})", min_value=min_male_ratio, max_value=1. - min_male_ratio, step=0.01, value=male_frac_default)
+    males_treatment_frac = st.sidebar.slider(f"males fraction of treatment ({treatments:,})", min_value=min_male_ratio, max_value=1. - min_male_ratio, step=0.01, value=male_treatment_frac_paradox)
 elif paradox_mode == system_mode:
     males_treatment_frac = male_treatment_frac_paradox
 else:
@@ -117,11 +120,11 @@ females_control = females - females_treatment
 if diy_mode == system_mode:
     min_success_rate = 0.1
 
-    male_treatment_r = st.sidebar.slider("male treatment success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=success_rate_default)
-    male_control_r   = st.sidebar.slider("male control   success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=success_rate_default - 0.1)
+    male_treatment_r = st.sidebar.slider("male treatment success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=male_treatment_success_rate_paradox)
+    male_control_r   = st.sidebar.slider("male control   success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=male_treatment_success_rate_paradox - 0.1)
 
-    female_treatment_r = st.sidebar.slider("female treatment success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=success_rate_default)
-    female_control_r   = st.sidebar.slider("female control   success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=success_rate_default - 0.1)
+    female_treatment_r = st.sidebar.slider("female treatment success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=female_treatment_success_rate_paradox)
+    female_control_r   = st.sidebar.slider("female control   success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=female_treatment_success_rate_paradox - 0.1)
 
 elif paradox_mode == system_mode:
     male_treatment_r = male_treatment_success_rate_paradox
@@ -174,8 +177,8 @@ right_arrow = r'''$\rightarrow$'''
 
 f"""
 In the following mock table we track patient recovery rates for a population of {people:,} split into to groups:   
-* {treatments:,}  who receive treatment and 
-* {controls:,} who do not (control)
+* {treatments:,}  patients that receive treatment and 
+* {controls:,} that do not (control)
 
 We also have gender information with a total of {males:,} males and {females:,} females.  
 (Feel free to update the values by using the widgets on the left sidebar.)  
