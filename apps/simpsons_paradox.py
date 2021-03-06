@@ -13,13 +13,15 @@ except:
     daft = None
 
 paradox_mode = "Paradox"
-standard_mode = "Standard"
-diy_mode = "Do it yourself!"
+standard_mode = "Random Control Trial"
+diy_mode = "Go Wild!"
 
 system_mode = st.sidebar.radio('Mode', [paradox_mode, standard_mode, diy_mode])
 
 f""" 
 ## Simpson's *"Paradox"*
+**A classical problem of data interpretation is an excellent tool to learn about causality.**
+
 
 There is an interesting numerical quirk that may arise in an analysis, where 
  results of a population contradict with those of subpopulations.  
@@ -27,7 +29,8 @@ There is an interesting numerical quirk that may arise in an analysis, where
 For example, imagine that you are analysing the recovery rate of a drug, where
 patients are separated to treatment and control groups. 
 
-You find that treatment group of the males performs better than the control. Same for the females.  Curiously, though, when you aggregate all the results you get the exact opposite finding!
+You find that males treatment group performs better than the model control group, and 
+you reach a similar conclusion for the females.  Curiously, though, when you aggregate all the results you get the exact opposite finding!
 
 Let's examine the following table containing mock results to better understand 
 the problem ... and its solution. 
@@ -35,8 +38,8 @@ the problem ... and its solution.
 *Spoiler alert:* the resolution involves understanding 
 and dealing with confounding factors, which we will dive into.
 
-Also: This is an interactive demo! I find it useful to play around with numbers to solidfy my understanding.
-Feel free to explore this topic by playing with the dials on the left. For this first stage remain in ***{paradox_mode}*** mode.
+Also: This is an interactive demo! You might find it useful to play around with numbers to solidfy your understanding.
+Feel free throughout to play with the dials on the left. For this first stage remain in ***{paradox_mode}*** mode.
 """
 
 
@@ -152,18 +155,22 @@ $$P(\text{recovery=True}|\text{treatment}) - P(\text{recovery=True}|\text{contro
 '''
 # equation_rd += f" = {rd_population:0.2f}"
 
+right_arrow = r'''$\rightarrow$'''
+
 f"""
-In this mock sample we have a total population of {people:,} split into {treatments:,}  
-who receive treatment and {controls:,} who do not (control). 
+In this mock sample we have a total population of {people:,} split into to groups 
+* {treatments:,}  who receive treatment and 
+* {controls:,} who do not (control)
 
 We also have gender information with a total of {males:,} males and {females:,} females.  
 
 We will use the *Risk Difference* to describe success rates, defined as:  
-{equation_rd}
+{equation_rd},  
+where | symbolises *conditioned on* (in our case conditioned on a subsample of each group in turn).
 
-For each gender we recovery rates and Risk Differences:    
-* males: {male_treatment_r * 100:0.1f}% for treatment and {male_control_r * 100:0.1f}% for control --> {(male_treatment_r-male_control_r)*100.:0.1f}% difference
-* females: {female_treatment_r * 100:0.1f}% for treatment and {female_control_r * 100:0.1f}% for control --> {(female_treatment_r-female_control_r)*100.:0.1f}% difference
+For each gender we calculate the recovery rates and Risk Differences:    
+* males: {male_treatment_r * 100:0.1f}% for treatment and {male_control_r * 100:0.1f}% for control {right_arrow} **{(male_treatment_r-male_control_r)*100.:0.1f}%** difference
+* females: {female_treatment_r * 100:0.1f}% for treatment and {female_control_r * 100:0.1f}% for control {right_arrow} **{(female_treatment_r-female_control_r)*100.:0.1f}%** difference
 
 """
 
@@ -188,7 +195,7 @@ if show_derivation:
     st.latex("Females := " + equation_numerical_female)
 
 f"""
-If we join all the results together, however, we obtain a negative Risk Difference of {rd_population * 100:0.1f}%! 
+If we join all the results together, however, we obtain a negative Risk Difference of **{rd_population * 100:0.1f}**%! 
 """
 
 if show_derivation:
@@ -259,13 +266,12 @@ if daft:
     st.pyplot(pgm)
 
 """
-The vertices have arrows indicating, e.g, that group assignment depends on the gender.  
-As a side note a robot that specialises in correlations would not know how to decide the direction, 
-this is domain expertise that we contribute to the model. We will discuss this top further later on.
+The vertices have arrows indicating causality. The arrow from *Gender* to *Group* signifies that group assignment depends on the gender.  (Note that a robot that specialises in correlations would not know how to decide the direction, 
+this is domain expertise that we contribute to the model. We will discuss this top further later on.)
 
-There are two more arrows pointing toward *Recovery*. We know the direction because the Gender 
-and Treatment do not depend on the Recovery. (Again, this sort of statement sounds trivial 
-in layman terms, but it is modelling it is a power device to go beyond correlations.)
+There are two more arrows pointing towards *Recovery*. We know the direction because the Recovery 
+ (true or false) cannot determine on's gender or if they were given a treatment. (Again, this sort of statement sounds trivial 
+in layman terms, but in terms of modelling it is a power device to go beyond correlations to learn about causal efects.)
 
 If we agree that this is our model, it is clear that Gender is a confounding factor. 
 The recovery success depends both on gender and the group assigned, where the group 
@@ -274,6 +280,9 @@ assignment depends on gender.
 Now that we know that Gender is a confounding factor, we can use this information to 
 solve for the apparent paradox.  
 
+---
+
+## The Solution: Adjusting For Confounding Factors
 """
 
 if daft:
@@ -301,7 +310,7 @@ Here we see that *Recovery* depends both on *Treatment* **and** on *Gender*.
 What makes *Gender* and confounding factor is the fact that *Treatment* depends on 
 *Gender*, too. 
 
-## The Solution: Adjusting For Confounding Factors
+
 
 """
 
