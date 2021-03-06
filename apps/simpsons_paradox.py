@@ -12,7 +12,7 @@ try:
 except:
     daft = None
 
-paradox_mode = "Paradox"
+paradox_mode = "Paradox Explained"
 standard_mode = "Random Control Trial"
 diy_mode = "TL;DR"
 
@@ -21,7 +21,18 @@ system_mode = st.sidebar.radio('Mode', [paradox_mode, standard_mode, diy_mode])
 f""" 
 ## Simpson's *"Paradox"*
 **This classic problem of data interpretation is an excellent example to learn about causal analysis.**
+"""
 
+
+if diy_mode != system_mode:
+    f"(For a less verbose version of the demo use the ***{diy_mode}*** mode by using the radio button on the left sidebar.)"
+else:
+    f"(For a verbose version of the demo use the ***{paradox_mode}*** mode by using the radio button on the left sidebar.)"
+
+
+
+text_intro = \
+f"""
 There is an interesting numerical quirk that may arise in an analysis, where 
  results of a population contradict with those of subpopulations.  
 
@@ -35,12 +46,16 @@ Here you'll examine tables containing mock results to better understand
 the problem ... and its solution. Along the way you will learn about confounding factors 
 and how to adjust for them in the context of causal analysis.
 
-This is an interactive demo! You might find it useful to play around with numbers to solidfy your understanding.
+This is an interactive demo! You might find it useful to play around with numbers to solidify your understanding.
 Feel free throughout to play with the dials on the left. 
 
 For the full explanation continue in the current ***{paradox_mode}*** mode and later you will 
 be suggested to use the ***{standard_mode}*** mode.  
 """
+
+if diy_mode != system_mode:
+    text_intro
+
 
 
 # --- default values ---
@@ -61,7 +76,7 @@ show_derivation = st.sidebar.checkbox('Show full derivations')
 people = treatments + controls
 
 
-if  "Do it yourself!" == system_mode:
+if  diy_mode == system_mode:
     min_male_ratio = 0.1
     males_frac = st.sidebar.slider(f"male fraction (of {people})",
                                    min_value=min_male_ratio,
@@ -69,6 +84,7 @@ if  "Do it yourself!" == system_mode:
                                    value=male_frac_default)
 else:
     males_frac = male_frac_default
+females_frac = 1. - males_frac
 
 males = np.int(people * males_frac)
 females = people - males
@@ -98,7 +114,7 @@ females_control = females - females_treatment
 # st.pyplot(fig)
 
 # --- Treatment success rates ---
-if "Do it yourself!" == system_mode:
+if diy_mode == system_mode:
     min_success_rate = 0.1
 
     male_treatment_r = st.sidebar.slider("male treatment success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=success_rate_default)
@@ -142,7 +158,6 @@ pd.DataFrame({0: [male_treatment_success, male_control_success, "male", True],
              }, 
              index=["treatment", "control", "gender","recovered"]).T
 
-df
 
 
 rd_population = (male_treatment_success + female_treatment_success)/ treatments -  (male_control_success + female_control_success)/controls
@@ -158,49 +173,87 @@ $$P(\text{recovery=True}|\text{treatment}) - P(\text{recovery=True}|\text{contro
 right_arrow = r'''$\rightarrow$'''
 
 f"""
-In this mock sample we have a total population of {people:,} split into to groups 
+In the following mock table we track patient recovery rates for a population of {people:,} split into to groups:   
 * {treatments:,}  who receive treatment and 
 * {controls:,} who do not (control)
 
 We also have gender information with a total of {males:,} males and {females:,} females.  
+(Feel free to update the values by using the widgets on the left sidebar.)  
+"""
 
-We will use the *Risk Difference* to describe success rates, defined as:  
+df
+
+f"""
+We will use the *Risk Difference* to describe recovery success rates, defined as:  
 {equation_rd},  
 where | symbolises *conditioned on* (in our case conditioned on a subsample of each group in turn).
+"""
 
+text_males_females_verbose_results = \
+f"""
 For each gender we calculate the recovery rates and Risk Differences:    
 * males: {male_treatment_r * 100:0.1f}% for treatment and {male_control_r * 100:0.1f}% for control {right_arrow} **{(male_treatment_r-male_control_r)*100.:0.1f}%** difference
 * females: {female_treatment_r * 100:0.1f}% for treatment and {female_control_r * 100:0.1f}% for control {right_arrow} **{(female_treatment_r-female_control_r)*100.:0.1f}%** difference
 
 """
 
+text_population_verbose_rd_results = \
+f"""
+If we join all the results together, however, we obtain a negative Risk Difference of **{rd_population * 100:0.1f}**%! 
+"""
+
+rd_males = male_treatment_success / males_treatment - male_control_success / males_control
+rd_females = female_treatment_success / females_treatment - female_control_success / females_control
+
 equation_numerical_male = f"{male_treatment_success}/{males_treatment} - {male_control_success}/{males_control}"
 equation_numerical_male += f"= {male_treatment_success / males_treatment:0.2f} - {male_control_success / males_control:0.2f}"
-equation_numerical_male += f"= {male_treatment_success / males_treatment - male_control_success / males_control:0.2f}"
+equation_numerical_male += f"= {rd_males:0.2f}"
 
 equation_numerical_female = f"{female_treatment_success}/{females_treatment} - {female_control_success}/{females_control}"
 equation_numerical_female += f"= {female_treatment_success / females_treatment:0.2f} - {female_control_success / females_control:0.2f}"
-equation_numerical_female += f"= {female_treatment_success / females_treatment - female_control_success / females_control:0.2f}"
+equation_numerical_female += f"= {rd_females:0.2f}"
 
 equation_numerical = f"({male_treatment_success} + {female_treatment_success})/({treatments}) - ({male_control_success} + {female_control_success})/({controls})"
 equation_numerical += f"= \n{(male_treatment_success + female_treatment_success)/ treatments:0.2f} - {(male_control_success + female_control_success)/controls:0.2f}"
 equation_numerical += f"= {rd_population:0.2f}"
 
+equation_ace_using_rd = r"$$RD_{\text{male}} P(\text{male}) + RD_{\text{female}} P(\text{female})$$"
 
-if show_derivation:
-    "Risk Difference derivations"
+ace_equation_numerical = f"{rd_males:0.2f}*{males_frac:0.2f} + {rd_females:0.2f}*{females_frac:0.2f}"
+ace_equation_numerical += f"= {rd_males * males_frac + rd_females * females_frac:0.2f}"
+
+if diy_mode != system_mode:
+    text_males_females_verbose_results
+
+    if show_derivation:
+        "Risk Difference derivations"
+        st.latex("Males := " + equation_numerical_male)
+        st.latex("Females := " + equation_numerical_female)
+
+    text_population_verbose_rd_results
+
+    if show_derivation:
+        st.latex("Population := " + equation_numerical)
+
+else:
+    """
+    To adjust for the Gender confounding factor we use the *Average Causal Effect* defined as:
+    """
+
+    equation_ace_using_rd
+
+
+    "Risk Difference:"
     st.latex("Males := " + equation_numerical_male)
-
-
     st.latex("Females := " + equation_numerical_female)
-
-f"""
-If we join all the results together, however, we obtain a negative Risk Difference of **{rd_population * 100:0.1f}**%! 
-"""
-
-if show_derivation:
     st.latex("Population := " + equation_numerical)
+    """
+    Average Causal Effect :  
+    """
+    st.latex("Population := " + ace_equation_numerical)
 
+
+text_rd_explanation = \
 f"""
 In other words  
 * The treatment of males improves the recovery rate by an absolute {(male_treatment_r-male_control_r)*100.:0.1f}%
@@ -220,14 +273,21 @@ while the conclusion remains that same.
 For your convenience here is the same data and results:
 """
 
-df
+if diy_mode != system_mode:
+    text_rd_explanation
+
+    df
+
+
+
+
 
 
 f"""
 ---
 ## The Problem: Confounding Factors 
 
-Upon a examination look you'll notice two interesting aspects:
+Upon an examination look you'll notice two interesting aspects:
 * Uneven distributions of the genders amongst the treatment and control groups.
 * Even though males and females have the same Risk Difference each group has a different success rate.
 
@@ -338,8 +398,6 @@ equation_ace += f"={ace:0.2f}"
 
 
 
-
-equation_ace
 
 equation_ace_drivation = r"$$= P(\text{recovery}|\text{treatment, male})P(\text{male}) + P(\text{recovery}|\text{treatment, female})P(\text{female})$$"
 equation_ace_drivation +=  r"$$- \left( P(\text{recovery}|\text{control, male})P(\text{male}) + P(\text{recovery}|\text{control, female})P(\text{female}) \right)$$"
