@@ -14,14 +14,13 @@ except:
 
 paradox_mode = "Paradox"
 standard_mode = "Random Control Trial"
-diy_mode = "Go Wild!"
+diy_mode = "TL;DR"
 
 system_mode = st.sidebar.radio('Mode', [paradox_mode, standard_mode, diy_mode])
 
 f""" 
 ## Simpson's *"Paradox"*
-**A classical problem of data interpretation is an excellent tool to learn about causality.**
-
+**This classic problem of data interpretation is an excellent example to learn about causal analysis.**
 
 There is an interesting numerical quirk that may arise in an analysis, where 
  results of a population contradict with those of subpopulations.  
@@ -29,17 +28,18 @@ There is an interesting numerical quirk that may arise in an analysis, where
 For example, imagine that you are analysing the recovery rate of a drug, where
 patients are separated to treatment and control groups. 
 
-You find that males treatment group performs better than the model control group, and 
+You find that males treatment group performs better than the male control group, and 
 you reach a similar conclusion for the females.  Curiously, though, when you aggregate all the results you get the exact opposite finding!
 
-Let's examine the following table containing mock results to better understand 
-the problem ... and its solution. 
+Here you'll examine tables containing mock results to better understand 
+the problem ... and its solution. Along the way you will learn about confounding factors 
+and how to adjust for them in the context of causal analysis.
 
-*Spoiler alert:* the resolution involves understanding 
-and dealing with confounding factors, which we will dive into.
+This is an interactive demo! You might find it useful to play around with numbers to solidfy your understanding.
+Feel free throughout to play with the dials on the left. 
 
-Also: This is an interactive demo! You might find it useful to play around with numbers to solidfy your understanding.
-Feel free throughout to play with the dials on the left. For this first stage remain in ***{paradox_mode}*** mode.
+For the full explanation continue in the current ***{paradox_mode}*** mode and later you will 
+be suggested to use the ***{standard_mode}*** mode.  
 """
 
 
@@ -265,7 +265,7 @@ if daft:
     pgm.render()
     st.pyplot(pgm)
 
-"""
+f"""
 The vertices have arrows indicating causality. The arrow from *Gender* to *Group* signifies that group assignment depends on the gender.  (Note that a robot that specialises in correlations would not know how to decide the direction, 
 this is domain expertise that we contribute to the model. We will discuss this top further later on.)
 
@@ -283,6 +283,20 @@ solve for the apparent paradox.
 ---
 
 ## The Solution: Adjusting For Confounding Factors
+
+Our problem was that we did not regard confounding effects of the Gender parameter which 
+determines (probabilistically) Group and the Outcome. The solution to this is standard 
+stratification. 
+
+We already know:
+
+RD Males = {equation_numerical_male}  
+RD Females = {equation_numerical_female} 
+ 
+
+What we have done here may be thought of as changing our original graphic model 
+ to a similar one but without an arrow from Gender to Group, i.e, the group assignment 
+ no longer depends on one's gender. This is what we would expect from a Random Control Trial.
 """
 
 if daft:
