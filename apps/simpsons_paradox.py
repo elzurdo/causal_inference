@@ -13,13 +13,12 @@ except:
     daft = None
 
 paradox_mode = "Paradox Explained"
-standard_mode = "Random Control Trial"
 diy_mode = "TL;DR"
 
-system_mode = st.sidebar.radio('Mode', [paradox_mode, standard_mode, diy_mode])
+system_mode = st.sidebar.radio('Mode', [diy_mode, paradox_mode])
 
 f""" 
-## Simpson's *"Paradox"*
+## Simpson's *"Paradox"* 
 **This classic problem of data interpretation is an excellent example to learn about causal analysis.**
 """
 
@@ -52,17 +51,15 @@ and how to adjust for them in the context of causal analysis.
 This is an interactive demo! You might find it useful to play around with numbers to solidify your understanding.
 Feel free throughout to play with the dials on the left. 
 
-For the full explanation continue in the current ***{paradox_mode}*** mode and later you will 
-be suggested to use the ***{standard_mode}*** mode.  
+For the full explanation continue in the current ***{paradox_mode}*** mode.  
 """
 
 if diy_mode != system_mode:
     text_intro
 
-
-
 # --- default values ---
-treatments_default = 100
+treatments_default = 1000
+controls_default = treatments_default
 male_frac_default = 0.5  # Gender split
 success_rate_default = 0.7
 
@@ -70,42 +67,44 @@ male_treatment_frac_paradox = 0.2
 male_treatment_success_rate_paradox = 0.8
 female_treatment_success_rate_paradox = 0.4
 
+if diy_mode == system_mode:
+    show_derivation = False
+else:
+    show_derivation = st.sidebar.checkbox('Show full derivations')
 
 treatments = np.int(st.sidebar.number_input('Treatments:', format="%d", value=treatments_default))
-controls = np.int(st.sidebar.number_input('Controls:', format="%d", value=treatments))
-
-show_derivation = st.sidebar.checkbox('Show full derivations')
+controls = np.int(st.sidebar.number_input('Controls:', format="%d", value=controls_default))
 
 people = treatments + controls
 
+min_male_ratio = 0.1
+males_frac = st.sidebar.slider(f"male population fraction (i.e, of {people:,})",
+                               min_value=min_male_ratio,
+                               max_value=1. - min_male_ratio, step=0.01,
+                               value=male_frac_default)
 
-if  diy_mode == system_mode:
-    min_male_ratio = 0.1
-    males_frac = st.sidebar.slider(f"male fraction (of {people})",
-                                   min_value=min_male_ratio,
-                                   max_value=1. - min_male_ratio, step=0.01,
-                                   value=male_frac_default)
-else:
-    males_frac = male_frac_default
 females_frac = 1. - males_frac
+st.sidebar.write(f"{females_frac * 100.:0.1f}% of the population are females")
+st.sidebar.write(f"{males_frac * 100.:0.1f}% of the population are males")
 
 males = np.int(people * males_frac)
 females = people - males
 
 
 # --- Treatment split by gender ---
-if  diy_mode == system_mode:
-    males_treatment_frac = st.sidebar.slider(f"males fraction of treatment ({treatments:,})", min_value=min_male_ratio, max_value=1. - min_male_ratio, step=0.01, value=male_treatment_frac_paradox)
-elif paradox_mode == system_mode:
-    males_treatment_frac = male_treatment_frac_paradox
-else:
-    males_treatment_frac = male_frac_default
+males_treatment_frac = st.sidebar.slider(f"male treatment fraction (i.e, of {treatments:,})", min_value=min_male_ratio, max_value=1. - min_male_ratio, step=0.01, value=male_treatment_frac_paradox)
 
 males_treatment = np.int(treatments * males_treatment_frac)
 females_treatment = treatments - males_treatment
 
+st.sidebar.write(f"{(1. - males_treatment_frac) * 100.:0.1f}% of the treatment are females")
+st.sidebar.write(f"{males_treatment_frac * 100.:0.1f}% of the treatment are males")
+
+
 males_control = males - males_treatment
 females_control = females - females_treatment
+
+
 
 
 # fig = plt.figure(
@@ -117,7 +116,9 @@ females_control = females - females_treatment
 # st.pyplot(fig)
 
 # --- Treatment success rates ---
-if diy_mode == system_mode:
+success_rate_control = st.sidebar.checkbox('Modify group success rates')
+
+if success_rate_control:
     min_success_rate = 0.1
 
     male_treatment_r = st.sidebar.slider("male treatment success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=male_treatment_success_rate_paradox)
@@ -126,17 +127,11 @@ if diy_mode == system_mode:
     female_treatment_r = st.sidebar.slider("female treatment success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=female_treatment_success_rate_paradox)
     female_control_r   = st.sidebar.slider("female control   success rate", min_value=min_success_rate, max_value=1. - min_success_rate, step=0.01, value=female_treatment_success_rate_paradox - 0.1)
 
-elif paradox_mode == system_mode:
+else:
     male_treatment_r = male_treatment_success_rate_paradox
     male_control_r = male_treatment_r - 0.1
 
     female_treatment_r = female_treatment_success_rate_paradox
-    female_control_r = female_treatment_r - 0.1
-else:
-    male_treatment_r = success_rate_default
-    male_control_r = male_treatment_r - 0.1
-
-    female_treatment_r = success_rate_default
     female_control_r = female_treatment_r - 0.1
 
 # --- All Data ---
@@ -159,7 +154,7 @@ pd.DataFrame({0: [male_treatment_success, male_control_success, "male", True],
               2: [female_treatment_success, female_control_success, "female", True],
               3: [female_treatment_failure, female_control_failure, "female", False]
              }, 
-             index=["treatment", "control", "gender","recovered"]).T
+             index=["group=treatment", "group=control", "gender","recovered"]).T
 
 
 
@@ -169,27 +164,29 @@ ace = male_treatment_success / males_treatment * males_frac + female_treatment_s
 ace -= male_control_success / males_control * males_frac + female_control_success / females_control * (1. - males_frac)
 
 equation_rd = r'''
-$$P(\text{recovery=True}|\text{treatment}) - P(\text{recovery=True}|\text{control})$$
+$$RD =  P(\text{recovery=True}|\text{group=treatment}) - P(\text{recovery=True}|\text{group=control})$$
 '''
 # equation_rd += f" = {rd_population:0.2f}"
 
 right_arrow = r'''$\rightarrow$'''
 
 f"""
-In the following mock table we track patient recovery rates for a population of {people:,} split into to groups:   
+In the following mock table we track patient recovery rates for a population of {people:,} split into to two groups:   
 * {treatments:,}  patients that receive treatment and 
-* {controls:,} that do not (control)
+* {controls:,} that do not (control)  
 
 We also have gender information with a total of {males:,} males and {females:,} females.  
-(Feel free to update the values by using the widgets on the left sidebar.)  
+
+(*This is and interactive demo!*: on left sidebar you can update all values.)
+
 """
 
 df
 
 f"""
-We will use the *Risk Difference* to describe recovery success rates, defined as:  
+To assess performance of the treatment, we calculate the *Risk Difference* which compares the recovery success rates of the two groups, defined as:  
 {equation_rd},  
-where | symbolises *conditioned on* (in our case conditioned on a subsample of each group in turn).
+where the pipe (|) symbolises *conditioned on* (in our case conditioned on group).
 """
 
 text_males_females_verbose_results = \
@@ -220,7 +217,7 @@ equation_numerical = f"({male_treatment_success} + {female_treatment_success})/(
 equation_numerical += f"= \n{(male_treatment_success + female_treatment_success)/ treatments:0.2f} - {(male_control_success + female_control_success)/controls:0.2f}"
 equation_numerical += f"= {rd_population:0.2f}"
 
-equation_ace_using_rd = r"$$RD_{\text{male}} P(\text{male}) + RD_{\text{female}} P(\text{female})$$"
+equation_ace_using_rd = r"$$ACE = \sum_\text{strata}RD_\text{stratum}P(\text{stratum}) = RD_{\text{male}} P(\text{male}) + RD_{\text{female}} P(\text{female})$$"
 
 ace_equation_numerical = f"{rd_males:0.2f}*{males_frac:0.2f} + {rd_females:0.2f}*{females_frac:0.2f}"
 ace_equation_numerical += f"= {rd_males * males_frac + rd_females * females_frac:0.2f}"
@@ -273,19 +270,22 @@ Let's see what we are missing.
 *Suggestion*: Play with the **Controls** values on the left to see how the values change,
 while the conclusion remains that same.   
 
-For your convenience here is the same data and results:
 """
 
 if diy_mode != system_mode:
     text_rd_explanation
 
-    df
+
+""" 
+*Challenge*: Try to guess what is required for the Population RD and ACE to agree. 
+When ready modify the values on the left to see if you were correct!    
+For your convenience here is the same data
+"""
+
+df
 
 
-
-
-
-
+text_confounding = \
 f"""
 ---
 ## The Problem: Confounding Factors 
@@ -309,28 +309,77 @@ In the treatment group there are {males_treatment:,} males and {females_treatmen
 In the control group there are {males_control:,} males and {females_control:,} females.
 
 This means that being assigned treatment or control depends on the gender.  
-
-If we draw a *Graphical Model* where nodes are parameters and vertices are their relationships, 
-we should expect the following:  
+ 
 """
 
+if diy_mode != system_mode:
+    text_confounding
 
+# --- Graphical model approach
 
-# --- Graphical model approahch
+text_gender_to_group_rct = \
+f"""
+In the graph we see that Group **does not** depend on Gender due to an even split of gender between the treatment and control groups. 
+This means that we have Random Control Trial conditions. In RFC conditions you will also see that 
+the Risk Difference of the population now equals that of their Average Causal Effect at {ace:0.2f}. 
+*Suggestion:* Explore testing results by modifying ***male fraction*** and/or ***males fraction of treatment***.
+"""
+
+text_gender_to_group_non_rct = \
+"""
+In the graph we see that Group depends on Gender because of an uneven split between 
+the genders in the groups. 
+"""
+rct_condition = False
+if (males_treatment_frac == 0.5) & (males_frac == 0.5):
+    rct_condition = True
+elif males_frac == 0.5:
+    text_gender_to_group_non_rct = \
+    f"""{text_gender_to_group_non_rct} *Suggestion:* set **males treatment fraction**=0.5 to see what happens.
+    """
+elif males_treatment_frac == 0.5:
+    text_gender_to_group_non_rct = \
+    f"""{text_gender_to_group_non_rct}   Suggestion: set **males population fraction**=0.5 to see what happens.
+    """
+else:
+    text_gender_to_group_non_rct = \
+    f"""{text_gender_to_group_non_rct} *Suggestion:* set **males population fraction**=0.5 and **male treatment fraction**=0.5 to see what happens.
+    """
+
+if rct_condition == True:
+    text_gender_to_group_edge = text_gender_to_group_rct
+else:
+    text_gender_to_group_edge = text_gender_to_group_non_rct
+
 if daft:
     pgm = daft.PGM(aspect=1.2, node_unit=1.75)
     pgm.add_node("gender", r"Gender", 3, 3)
     pgm.add_node("group", r"Group", 2, 2)
     pgm.add_node("outcome", r"Outcome", 4, 2)
-    pgm.add_edge("gender", "group")
+    if not rct_condition:
+        pgm.add_edge("gender", "group")
     pgm.add_edge("gender", "outcome")
     pgm.add_edge("group", "outcome")
     pgm.render()
+
+    """
+    The following *Graphical Model* represents the system. Nodes are parameters and vertices are their relationships:
+    """
+
     st.pyplot(pgm)
 
+
+
+
+
+# The arrow from *Gender* to *Group* signifies that group assignment depends on the gender.  (Note that a robot that specialises in correlations would not know how to decide the direction,
+# this is domain expertise that we contribute to the model. We will discuss this top further later on.)`
+
+text_adjusting = \
 f"""
-The vertices have arrows indicating causality. The arrow from *Gender* to *Group* signifies that group assignment depends on the gender.  (Note that a robot that specialises in correlations would not know how to decide the direction, 
-this is domain expertise that we contribute to the model. We will discuss this top further later on.)
+The vertices have arrows indicating causality. 
+
+{text_gender_to_group_edge}
 
 There are two more arrows pointing towards *Recovery*. We know the direction because the Recovery 
  (true or false) cannot determine on's gender or if they were given a treatment. (Again, this sort of statement sounds trivial 
@@ -362,18 +411,27 @@ What we have done here may be thought of as changing our original graphic model
  no longer depends on one's gender. This is what we would expect from a Random Control Trial.
 """
 
-if daft:
-    pgm = daft.PGM(aspect=1.2, node_unit=1.75)
-    pgm.add_node("gender", r"Gender", 3, 3)
-    pgm.add_node("group", r"Group", 2, 2)
-    pgm.add_node("outcome", r"Outcome", 4, 2)
-    pgm.add_edge("gender", "outcome")
-    pgm.add_edge("group", "outcome")
-    pgm.render()
-    st.pyplot(pgm)
+
+if diy_mode:
+    text_gender_to_group_edge
+
+else:
+
+    text_adjusting
 
 
+    if daft:
+        pgm = daft.PGM(aspect=1.2, node_unit=1.75)
+        pgm.add_node("gender", r"Gender", 3, 3)
+        pgm.add_node("group", r"Group", 2, 2)
+        pgm.add_node("outcome", r"Outcome", 4, 2)
+        pgm.add_edge("gender", "outcome")
+        pgm.add_edge("group", "outcome")
+        pgm.render()
+        st.pyplot(pgm)
 
+
+text_TODO= \
 """
 
 For later:   
@@ -387,7 +445,7 @@ Here we see that *Recovery* depends both on *Treatment* **and** on *Gender*.
 What makes *Gender* and confounding factor is the fact that *Treatment* depends on 
 *Gender*, too. 
 
-
+Note that this tutorial is aimed to be interactive and hence you can change the results to explore different outcomes. 
 
 """
 
@@ -420,10 +478,6 @@ if show_derivation:
 
 
 
-
-"""
-Note that this tutorial is aimed to be interactive and hence you can change the results to explore different outcomes. 
-"""
 
 # --- More info ---
 
