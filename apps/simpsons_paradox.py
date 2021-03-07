@@ -207,50 +207,45 @@ rd_females = female_treatment_success / females_treatment - female_control_succe
 
 equation_numerical_male = f"{male_treatment_success}/{males_treatment} - {male_control_success}/{males_control}"
 equation_numerical_male += f"= {male_treatment_success / males_treatment:0.2f} - {male_control_success / males_control:0.2f}"
-equation_numerical_male += f"= {rd_males:0.2f}"
+equation_numerical_male += f"= **{rd_males:0.2f}**"
 
 equation_numerical_female = f"{female_treatment_success}/{females_treatment} - {female_control_success}/{females_control}"
 equation_numerical_female += f"= {female_treatment_success / females_treatment:0.2f} - {female_control_success / females_control:0.2f}"
-equation_numerical_female += f"= {rd_females:0.2f}"
+equation_numerical_female += f"= **{rd_females:0.2f}**"
 
 equation_numerical = f"({male_treatment_success} + {female_treatment_success})/({treatments}) - ({male_control_success} + {female_control_success})/({controls})"
 equation_numerical += f"= \n{(male_treatment_success + female_treatment_success)/ treatments:0.2f} - {(male_control_success + female_control_success)/controls:0.2f}"
-equation_numerical += f"= {rd_population:0.2f}"
+equation_numerical += f"= **{rd_population:0.2f}**"
 
 equation_ace_using_rd = r"$$ACE = \sum_\text{strata}RD_\text{stratum}P(\text{stratum}) = RD_{\text{male}} P(\text{male}) + RD_{\text{female}} P(\text{female})$$"
 
 ace_equation_numerical = f"{rd_males:0.2f}*{males_frac:0.2f} + {rd_females:0.2f}*{females_frac:0.2f}"
-ace_equation_numerical += f"= {rd_males * males_frac + rd_females * females_frac:0.2f}"
+ace_equation_numerical += f"= **{rd_males * males_frac + rd_females * females_frac:0.2f}**"
 
 if diy_mode != system_mode:
     text_males_females_verbose_results
 
     if show_derivation:
         "Risk Difference derivations"
-        st.latex("Males := " + equation_numerical_male)
-        st.latex("Females := " + equation_numerical_female)
+        st.write(r"$RD_\text{male}$ = " + equation_numerical_male)
+        st.write(r"$RD_\text{female}$ = " + equation_numerical_female)
 
     text_population_verbose_rd_results
 
     if show_derivation:
-        st.latex("Population := " + equation_numerical)
+        st.write(r"$RD_\text{population}$ = " + equation_numerical)
 
 else:
     """
-    To adjust for the Gender confounding factor we use the *Average Causal Effect* defined as:
+    To adjust for the Gender confounding factor we calculate the *Average Causal Effect* defined as:
     """
 
     equation_ace_using_rd
 
-
-    "Risk Difference:"
-    st.latex("Males := " + equation_numerical_male)
-    st.latex("Females := " + equation_numerical_female)
-    st.latex("Population := " + equation_numerical)
-    """
-    Average Causal Effect :  
-    """
-    st.latex("Population := " + ace_equation_numerical)
+    st.write(r"$RD_\text{male}$ = " + equation_numerical_male)
+    st.write(r"$RD_\text{female}$ = " + equation_numerical_female)
+    st.write(r"$RD_\text{population}$ = " + equation_numerical)
+    st.write(r"$ACE_\text{population}$ = " + ace_equation_numerical)
 
 
 text_rd_explanation = \
@@ -331,20 +326,13 @@ In the graph we see that Group depends on Gender because of an uneven split betw
 the genders in the groups. 
 """
 rct_condition = False
-if (males_treatment_frac == 0.5) & (males_frac == 0.5):
+
+if males_treatment_frac == males_frac:
     rct_condition = True
-elif males_frac == 0.5:
-    text_gender_to_group_non_rct = \
-    f"""{text_gender_to_group_non_rct} *Suggestion:* set **males treatment fraction**=0.5 to see what happens.
-    """
-elif males_treatment_frac == 0.5:
-    text_gender_to_group_non_rct = \
-    f"""{text_gender_to_group_non_rct}   Suggestion: set **males population fraction**=0.5 to see what happens.
-    """
 else:
     text_gender_to_group_non_rct = \
-    f"""{text_gender_to_group_non_rct} *Suggestion:* set **males population fraction**=0.5 and **male treatment fraction**=0.5 to see what happens.
-    """
+        f"""{text_gender_to_group_non_rct} *Suggestion:* set **males treatment fraction**=**males population fraction** to see what happens.
+        """
 
 if rct_condition == True:
     text_gender_to_group_edge = text_gender_to_group_rct
