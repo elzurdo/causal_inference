@@ -12,24 +12,29 @@ try:
 except:
     daft = None
 
-paradox_mode = "Paradox Explained"
+paradox_mode = "Tutorial"
 diy_mode = "TL;DR"
 
 system_mode = st.sidebar.radio('Mode', [diy_mode, paradox_mode])
 
 f""" 
-## Simpson's *"Paradox"* 
+## Simpson's *"Paradox"* - An Interactive Demo
 **This classic problem of data interpretation is an excellent example to learn about causal analysis.**
 """
 
+"""
+> *Causation is not merely an aspect of statistics - it is an addition to statistics* - Judea Pearl
+"""
 
 if diy_mode != system_mode:
     alt_mode = str(diy_mode)
     verbosity_type = "less verbose"
+    verbosity_prefix = ""
 else:
     alt_mode = str(paradox_mode)
     verbosity_type = "verbose"
-f"(For a {verbosity_type} version of the demo change to the ***{alt_mode}*** mode on the radio button in the left sidebar.)"
+    verbosity_prefix = f"This **{diy_mode}** mode assumes that you are familiar with Simpson's Paradox and how its resolved and are interested in testing the use case presented. "
+f"({verbosity_prefix}For a {verbosity_type} version of the demo change to the ***{alt_mode}*** mode on the radio button in the left sidebar.)"
 
 
 
@@ -255,14 +260,15 @@ In other words
 * The treatment of females improves the recovery rate by an absolute {(female_treatment_r-female_control_r)*100.:0.1f}%
 * The treatment of everyone **reduces** the recovery rate by an absolute {np.abs(rd_population) * 100:0.1f}%
 
-Clearly this last statement does not make sense!  
+Clearly this last statement does not make sense!     
+If the treatment helps males and females that means that it helps anyone regardless of if we know their gender.
 
 This is the essence of the paradox. 
 
 The solution? Like any magician will tell you, it's about perception ... 
 Let's see what we are missing. 
 
-*Suggestion*: Play with the **Controls** values on the left to see how the values change,
+*Suggestion*: Play with the **Controls** values on the left sidebar to see how the values change,
 while the conclusion remains that same.   
 
 """
@@ -273,7 +279,7 @@ if diy_mode != system_mode:
 
 """ 
 *Challenge*: Try to guess what is required for the Population RD and ACE to agree. 
-When ready modify the values on the left to see if you were correct!    
+When ready modify the values on the left sidebar to see if you were correct!    
 For your convenience here is the same data
 """
 
@@ -422,7 +428,10 @@ else:
 text_TODO= \
 """
 
-For later:   
+For later:  
+
+The importance of the story behind the data
+ 
 It is important to note here that we applied our common sense, and hence subjectivity. 
 A robot, e.g, would examine the relationships between the groups selection (treatment or control) 
 and gender (male or female) and would conclude that they are correlated. As causation, 
