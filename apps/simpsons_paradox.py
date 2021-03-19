@@ -33,7 +33,7 @@ if diy_mode != system_mode:
 else:
     alt_mode = str(paradox_mode)
     verbosity_type = "verbose"
-    verbosity_prefix = f"This **{diy_mode}** mode assumes that you are familiar with Simpson's Paradox and how its resolved and are interested in testing the use case presented. "
+    verbosity_prefix = f"This **{diy_mode}** mode assumes that you are familiar with Simpson's Paradox and how it's resolved and are interested in testing the use case presented. "
 f"({verbosity_prefix}For a {verbosity_type} version of the demo change to the ***{alt_mode}*** mode on the radio button in the left sidebar.)"
 
 
@@ -241,11 +241,17 @@ if diy_mode != system_mode:
         st.write(r"$RD_\text{population}$ = " + equation_numerical)
 
 else:
-    """
-    To adjust for the Gender confounding factor we calculate the *Average Causal Effect* defined as:
+    r"""
+    Below we see that the sign of $RD_\text{population}$ contradicts with those of the genders.  
+    To resolve this we adjust for the Gender confounding factor by calculating the *Average Causal Effect* defined as:
     """
 
     equation_ace_using_rd
+
+    """
+    
+    """
+
 
     st.write(r"$RD_\text{male}$ = " + equation_numerical_male)
     st.write(r"$RD_\text{female}$ = " + equation_numerical_female)
@@ -331,11 +337,13 @@ text_gender_to_group_non_rct = \
 In the graph we see that Group depends on Gender because of an uneven split between 
 the genders in the groups. 
 """
-rct_condition = False
 
-if males_treatment_frac == males_frac:
-    rct_condition = True
-else:
+
+rct_condition = males_treatment_frac == males_frac  # i.e, Random Control Trial Condition
+gender_confounding = not ((male_treatment_r == female_treatment_r) & (male_control_r == female_control_r))
+
+
+if not rct_condition:
     text_gender_to_group_non_rct = \
         f"""{text_gender_to_group_non_rct} *Suggestion:* set **males treatment fraction**=**males population fraction** to see what happens.
         """
@@ -352,12 +360,14 @@ if daft:
     pgm.add_node("outcome", r"Outcome", 4, 2)
     if not rct_condition:
         pgm.add_edge("gender", "group")
-    pgm.add_edge("gender", "outcome")
+    if gender_confounding:
+        pgm.add_edge("gender", "outcome")
     pgm.add_edge("group", "outcome")
     pgm.render()
 
     """
-    The following *Graphical Model* represents the system. Nodes are parameters and vertices are their relationships:
+    It is also convenient to represent the system in a *Graphical Model*.  
+    Nodes are parameters and vertices are their relationships:
     """
 
     st.pyplot(pgm)
