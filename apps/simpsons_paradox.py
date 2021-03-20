@@ -326,16 +326,16 @@ if diy_mode != system_mode:
 
 text_gender_to_group_rct = \
 f"""
-In the graph we see that Group **does not** depend on Gender due to an even split of gender between the treatment and control groups. 
+In the graph we see that Group variable **does not** depend on Gender. Males are {males_frac * 100:0.0f}% of the population as well as the groups. 
 This means that we have Random Control Trial conditions. In RFC conditions you will also see that 
 the Risk Difference of the population now equals that of their Average Causal Effect at {ace:0.2f}. 
 *Suggestion:* Explore testing results by modifying ***male fraction*** and/or ***males fraction of treatment***.
 """
 
 text_gender_to_group_non_rct = \
-"""
+f"""
 In the graph we see that Group depends on Gender because of an uneven split between 
-the genders in the groups. 
+the genders in the groups (males {males_frac * 100:0.0f}% of the population, while {males_treatment_frac * 100:0.0f}% of the treatment group). 
 """
 
 
