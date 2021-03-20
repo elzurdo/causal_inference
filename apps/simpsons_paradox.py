@@ -353,6 +353,10 @@ if rct_condition == True:
 else:
     text_gender_to_group_edge = text_gender_to_group_non_rct
 
+
+f"gender confounding: {gender_confounding}"
+
+
 if daft:
     pgm = daft.PGM(aspect=1.2, node_unit=1.75)
     pgm.add_node("gender", r"Gender", 3, 3)
