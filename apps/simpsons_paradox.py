@@ -229,8 +229,9 @@ equation_numerical += f"= **{rd_population:0.2f}**"
 
 equation_ace_using_rd = r"$$ACE = \sum_\text{strata}RD_\text{stratum}P(\text{stratum}) = RD_{\text{male}} P(\text{male}) + RD_{\text{female}} P(\text{female})$$"
 
-ace_equation_numerical = f"{rd_males:0.2f}*{males_frac:0.2f} + {rd_females:0.2f}*{females_frac:0.2f}"
+ace_equation_numerical = f"{rd_males:0.2f} X {males_frac:0.2f} + {rd_females:0.2f} X {females_frac:0.2f}"
 ace_equation_numerical += f"= **{rd_males * males_frac + rd_females * females_frac:0.2f}**"
+
 
 if diy_mode != system_mode:
     text_males_females_verbose_results
@@ -357,15 +358,6 @@ if rct_condition == True:
     text_gender_to_group_edge = text_gender_to_group_rct
 else:
     text_gender_to_group_edge = text_gender_to_group_non_rct
-
-
-f"gender confounding: {gender_confounding}"
-
-
-f"{male_treatment_r}, {female_treatment_r}"
-
-
-f"{male_control_r}, {female_control_r}"
 
 
 if daft:
