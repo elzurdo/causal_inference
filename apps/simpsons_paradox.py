@@ -357,6 +357,12 @@ else:
 f"gender confounding: {gender_confounding}"
 
 
+f"{male_treatment_r}, {female_treatment_r}"
+
+
+f"{male_control_r}, {female_control_r}"
+
+
 if daft:
     pgm = daft.PGM(aspect=1.2, node_unit=1.75)
     pgm.add_node("gender", r"Gender", 3, 3)
