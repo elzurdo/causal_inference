@@ -139,6 +139,11 @@ else:
     female_treatment_r = female_treatment_success_rate_paradox
     female_control_r = female_treatment_r - 0.1
 
+male_treatment_r = np.round(male_treatment_r, 2)
+female_treatment_r = np.round(female_treatment_r, 2)
+
+male_control_r = np.round(male_control_r, 2)
+female_control_r = np.round(female_control_r, 2)
 # --- All Data ---
 
 
