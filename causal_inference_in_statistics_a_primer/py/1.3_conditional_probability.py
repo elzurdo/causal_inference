@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
-# # Study question 1.3.2
+# # Study question 1.3.2: Genders in High School
 #
 # > *Consider Table 1.5 showing the relationship between gender and education level in the U.S. adult population.     
 # (a) Estimate $P($High School$)$.    
@@ -145,7 +145,7 @@ df.query("(highest == @highest) & (gender == @gender)")["occurence"].sum() / df.
 
 
 
-# # Study question 1.3.5 
+# # Study question 1.3.5: Monty Hall Switch Bayes Benefit Proof
 # Monty Hall
 #
 # > *Prove, using Bayes’ theorem, that switching doors improves your chances of winning the car in the Monty Hall problem.*
