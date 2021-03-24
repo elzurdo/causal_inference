@@ -199,9 +199,45 @@
 # $$P(y_1|x_1) - P(y_1|x_0) = \\ \sum_{z=z_0, z_1} \frac{P(x_1,y_1,z)}{P(x_1)} - \frac{P(x_0,y_1,z)}{P(x_0)} = \frac{p_2q_1(1-r) + p_4q_2r}{q_1(1-r) + q_2r} - \frac{(1-r)(1-q_1)p_1 + r(1-q_2)p_3}{(1-q_1)(1-r) + (1-q_2)r}
 # $$
 
-# # (c) 
+# # (c) Simpson's Reversal
 #
 # > *Using your results for (b), find a combination of parameters that exhibits Simpson’s reversal.*
+#
+# Given  
+#
+# $P(Z=z_1)=r$ 
+#
+# $P(Y=y_1|Z=z_0, X=x_0) = p_1$  
+# $P(Y=y_1|Z=z_0, X=x_1) = p_2$
+#
+# $P(Y=y_1|Z=z_1, X=x_0) = p_3$  
+# $P(Y=y_1|Z=z_1, X=x_1) = p_4$
+#
+#
+# $P(X=x_1|Z=z_0) = q_1$  
+# $P(X=x_1|Z=z_1) = q_2$  
+#
+# With relationships. 
+#
+# $$Y \leftarrow X \leftarrow Z \rightarrow Y$$
+#
+#
+# Simpson's **reversal** may be obtained with combinations that have:  
+# $$(p_4 > p_3 >> p_2 > p_1) \& (q_1 > q_2)$$ regardless of the value of $r$
+#
+# Or alternatively  
+#
+# $$(p_3 > p_4 >> p_1 > p_2) \& (q_2 > q_1)$$
+#
+# Simpson's **strenghtening** may be obtained with combinations that have:
+#
+# $$(p_4 > p_3 >> p_2 > p_1) \& (q_2 > q_1)$$ regardless of the value of $r$
+#
+# Or alternatively  
+#
+# $$(p_3 > p_4 >> p_1 > p_2) \& (q_1 > q_2)$$
+#
+#
 
 # # Resources
 # * [Pearl's Primer preview, page 31](http://bayes.cs.ucla.edu/PRIMER/primer-ch1.pdf)
