@@ -284,7 +284,7 @@ df.query("(highest == @highest) & (gender == @gender)")["occurence"].sum() / df.
 #
 # $f_Z: 
 # Z= \text{choose one of} \begin{cases}
-#  D - \{Y\} \ \ \ \text{      if  X = Y},\\
+#  D - \{X\} \ \ \ \text{      if  X = Y},\\
 #  D - \{X, Y\} \text{  if  X \ne Y}\\
 # \end{cases}$
 #
@@ -321,3 +321,11 @@ df["P(X, Y, Z)"] = df["P(Z|X,Y)"] * p_x * p_y
 print(f"Testing normalisation of P(X,Y,Z) {df['P(X, Y, Z)'].sum()}")
 
 df
+# -
+
+df[df["P(Z|X,Y)"] > 0].shape
+
+df_aux = df.query("X == 'A'").query("Z == 'C'")
+df_aux
+
+df_aux["P(X, Y, Z)"] / df_aux["P(X, Y, Z)"].sum()

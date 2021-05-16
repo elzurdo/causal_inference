@@ -31,7 +31,7 @@ plt.rcParams["hatch.linewidth"] = 0.3
 # > *A baseball batter Tim has a better batting average than his teammate Frank. However, someone notices that Frank has a better batting average than Tim against both right-handed and left-handed pitchers. How can this happen? (Present your answer in a table.)*
 #
 #
-# This can happend when when we have a situation where we have an imbalance between the 
+# This can happend when when we have a situation where there is an imbalance between the 
 # batting averages as well as an imbalance between pitcher types.  
 #
 # Assuming the total number of pitches from left handers $N^L$ plus those from right handers $N^R$ are the same 
@@ -40,6 +40,8 @@ plt.rcParams["hatch.linewidth"] = 0.3
 # $B^R_\text{Frank} > B^R_\text{Tim} >> B^L_\text{Frank} > B^L_\text{Tim}$,   
 # $N^R_\text{Frank} < N^R_\text{Tim} \text{ assuming same total } \rightarrow N^L_\text{Frank} > N^L_\text{Tim}$
 #
+#
+# $P(success|Frank, Right) > P(success|Tim, Right) >> P(success|Frank, Left) > P(success|Tim, Left) \ \  \& \\ P(Right| Frank) < P(Right| Tim) \ \& \ P(Left|Frank) > P(Left|Tim)$
 
 # +
 # Example setup: batting average - frank batts better than tim. Right: 0.9 > 0.8, Left: 0.2 > 0.1
@@ -51,13 +53,14 @@ tim_batt_ave_left = 0.1
 
 # +
 # Exaple setup: number of batts - 
-total_batts = 100
+total_batts_frank = 100
+total_batts_tim = 100
 
 frank_batt_right = 10
-frank_batt_left = total_batts - frank_batt_right
+frank_batt_left = total_batts_frank - frank_batt_right
 
 tim_batt_right = 90
-tim_batt_left = total_batts - tim_batt_right
+tim_batt_left = total_batts_tim - tim_batt_right
 
 # +
 frank_succeed_right = frank_batt_right * frank_batt_ave_right
@@ -88,9 +91,12 @@ print(f"Tim  : {100* tim['successes']/ tim[['successes', 'failures']].sum():0.0f
 # Batter - Tim or Frank  
 # Pitcher - Left handed or Right handed  
 #
-# Pitcher selection does not depend on the Batter.   
-# Batter selection does not depend on the Pitcher.  
 # The outcome is a function of both the Pitcher and the Batter.   
+# Pitcher variable does depend on the Batter.   
+# Batter selection does not depend on the Pitcher.  
+#
+#
+# This is Simpson's paradox.  
 
 # +
 import daft  # pip install daft    From: https://pypi.org/project/data/
@@ -99,9 +105,11 @@ pgm = daft.PGM(aspect=1.2, node_unit=1.75)
 pgm.add_node("batter", r"Batter", 4, 3)
 pgm.add_node("pitcher", r"Pitcher", 2, 3)
 pgm.add_node("outcome", r"Outcome", 3, 2)
+pgm.add_edge("batter", "pitcher")
 pgm.add_edge("pitcher", "outcome")
 pgm.add_edge("batter", "outcome")
 pgm.render()
+pass
 # -
 
 # Todo: 
@@ -115,7 +123,28 @@ pgm.render()
 #
 # > *Determine, for each of the following causal stories, whether you should use the aggregate or the segregated data to determine the true effect.*
 #
-# > *(a) There are two treatments used on kidney stones: Treatment A and Treatment B. Doctors are more likely to use Treatment A on large (and therefore, more severe) stones and more likely to use Treatment B on small stones. Should a patient who doesn’t know the size of his or her stone examine the general population data, or the stone size-specific data when determining which treatment will be more effective?*
+# > (a) *There are two treatments used on kidney stones: Treatment A and Treatment B. Doctors are more likely to use Treatment A on large (and therefore, more severe) stones and more likely to use Treatment B on small stones. Should a patient who doesn’t know the size of his or her stone examine the general population data, or the stone size-specific data when determining which treatment will be more effective?*
+#
+# Case they have A: They should get Treatment A as it will help them.  Getting treatment 
+#
+#
+#
+#
+# outcome <-- stone size --> treatment type --> outcome
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #
 #
 # They should most definitely look at the more granular data.  
@@ -129,13 +158,47 @@ pgm.render()
 #
 # severity ...
 
-# > *(b) There are two doctors in a small town. Each has performed 100 surgeries in his career, which are of two types: one very difficult surgery and one very easy surgery. The first doctor performs the easy surgery much more often than the difficult surgery and the second doctor performs the difficult surgery more often than the easy surgery. You need surgery, but you do not know whether your case is easy or difficult. Should you consult the success rate of each doctor over all cases, or should you consult their success rates for the easy and difficult cases separately, to maximize the chance of a successful surgery?*
+# > (b) *There are two doctors in a small town. Each has performed 100 surgeries in his career, which are of two types: one very difficult surgery and one very easy surgery. The first doctor performs the easy surgery much more often than the difficult surgery and the second doctor performs the difficult surgery more often than the easy surgery. You need surgery, but you do not know whether your case is easy or difficult. Should you consult the success rate of each doctor over all cases, or should you consult their success rates for the easy and difficult cases separately, to maximize the chance of a successful surgery?*
+#
+#
+# Each performed 100 surgeries.  
+# Surgery: Difficult, Easy.  
+#
+# Dr. A: More Easy than Difficult.   
+# Dr. B: More Difficult than Easy.  
+#
+# Graph assumptions:  
+# * The doctor is chosen is independent of the surgery  
+# * The surgery (difficult, easy) listens to the doctor
+#
+
+
+
+# +
+import daft
+
+pgm = daft.PGM(aspect=1.2, node_unit=1.75)
+pgm.add_node("doctor", r"Doctor", 4, 3)
+pgm.add_node("surgery", r"Surgery", 2, 3)
+pgm.add_node("outcome", r"Outcome", 3, 2)
+pgm.add_edge("doctor", "surgery")
+pgm.add_edge("surgery", "outcome")
+pgm.add_edge("doctor", "outcome")
+pgm.render()
+# -
+
+
 
 # # Study Q4
 #
 # Study question 1.2.4  
 #
-# > *In an attempt to estimate the effectiveness of a new drug, a randomized experiment is con- ducted. In all, 50% of the patients are assigned to receive the new drug and 50% to receive a placebo. A day before the actual experiment, a nurse hands out lollipops to some patients who show signs of depression, mostly among those who have been assigned to treatment the next day (i.e., the nurse’s round happened to take her through the treatment-bound ward). Strangely, the experimental data revealed a Simpson’s reversal: Although the drug proved beneficial to the population as a whole, drug takers were less likely to recover than nontakers, among both lollipop receivers and lollipop nonreceivers. Assuming that lollipop sucking in itself has no effect whatsoever on recovery, answer the following questions:*
+# > *In an attempt to estimate the effectiveness of a new drug, a randomized experiment is con- ducted. In all, 50% of the patients are assigned to receive the new drug and 50% to receive a placebo. A day before the actual experiment, a nurse hands out lollipops to some patients who show signs of depression, mostly among those who have been assigned to treatment the next day (i.e., the nurse’s round happened to take her through the treatment-bound ward). Strangely, the experimental data revealed a Simpson’s reversal: Although the drug proved beneficial to the population as a whole, drug takers were less likely to recover than nontakers, among both lollipop receivers and lollipop nonreceivers.*
+#
+# > *[Hint: Use the fact that receiving a lollipop indicates a greater likelihood of being assigned to drug treatment, as well as depression, which is a symptom of risk factors that lower the likelihood of recovery.]*
+#
+#
+# > *Assuming that lollipop sucking in itself has no effect whatsoever on recovery, answer the following questions:*
 #
 # 50% - drug   
 # 50% - placebo   
@@ -151,17 +214,24 @@ pgm.render()
 #
 # > (a) *Is the drug beneficial to the population as a whole or harmful?*
 
-
+# The drug is beneficial for the whole population.
 
 # > (b) *Does your answer contradict our gender example, where sex-specific data was deemed
 # more appropriate?*
 
-
+# No, it doesn't contradict. In that example the gender variable affect the treatment variable, which is not the case here. 
 
 # > (c) *Draw a graph (informally) that more or less captures the story. (Look ahead to Section
 # 1.4 if you wish.)*
 
-
+# $$Y \leftarrow D \rightarrow L \leftarrow X \rightarrow Y$$
+#
+# The treatment $X$ is an exogenous variable (random control trial) which has a direct affect on the outcome $Y$.   
+# The lollypop variable $L$ listens both to $X$ (more likely for those with treatment) as well as those that happen to be depressed marked as variable $D$.    
+#
+# Lollipop sucking ($L$) in itself has no effect whatsoever on recovery ($Y$).  
+#
+# For the Simpson's reveral to happen for the lollypop takers, we need 
 
 # > (d) *How would you explain the emergence of Simpson’s reversal in this story?*
 
@@ -170,8 +240,7 @@ pgm.render()
 #
 #
 #
-# > (e) *Would your answer change if the lollipops were handed out (by the same criterion)a day after the study?
-# [Hint: Use the fact that receiving a lollipop indicates a greater likelihood of being assigned to drug treatment, as well as depression, which is a symptom of risk factors that lower the likelihood of recovery.]*
+# > (e) *Would your answer change if the lollipops were handed out (by the same criterion)a day after the study?*
 #
 
 
