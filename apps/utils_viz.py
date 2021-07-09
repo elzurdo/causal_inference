@@ -157,3 +157,77 @@ def plot_rates_counts(df_data, rate_width=0.01, color_population="gray", color_m
 
     return plt.gcf()
 
+
+def plot_difference_metric(diff, xval=0, color=None, dx=0.15, fontsize=12, hatch=None):
+    plt.bar(xval, diff, color=color, hatch=hatch)
+
+    color_diff, yval_frac = "green", 0.002
+    if diff < 0:
+        color_diff, yval_frac = "red", 0.015
+    elif diff == 0:
+        color_diff = "orange"
+    yval = diff + np.sign(diff) * yval_frac
+
+    plt.annotate(f"{diff * 100:0.1f}%", xy=(xval - dx, yval), color=color_diff,
+                 fontsize=fontsize)
+
+#def plot_risk_difference(rate_control, rate_treatment, xval=0, color=None, dx=0.15, fontsize=12):
+#    rate_diff = rate_treatment - rate_control
+#    plot_difference_metric(xval, rate_diff, xval=0, color=None, dx=0.15, fontsize=12)
+
+def plot_risk_difference_pop_cohorts(df_data, color_population="lightgray", color_male="orange",
+                                     color_female="purple", fontsize=12, ace=None):
+    xvals_all, xlabels = [0, 1, 2], ["RD\npopulation", "RD\nmales", "RD\nfemales"]
+    yvals = []
+    if ace is not None:
+        xvals_all.append(3)
+        xlabels.append("ACE\npopluation")
+        plot_difference_metric(ace, xval=3, color="darkgray", hatch="/")
+        yvals.append(ace)
+
+    n_control = df_data["group=control"].sum()
+    n_treatment = df_data["group=treatment"].sum()
+    rate_control = df_data.query("recovered==True")["group=control"].sum() / n_control
+    rate_treatment = df_data.query("recovered==True")[
+                         "group=treatment"].sum() / n_treatment
+    plot_difference_metric(rate_treatment - rate_control, color=color_population)
+    yvals.append(rate_treatment - rate_control)
+
+    query_gender = "gender == 'male'"
+    n_control = df_data.query(query_gender)["group=control"].sum()
+    n_treatment = df_data.query(query_gender)["group=treatment"].sum()
+    rate_control = df_data.query(query_gender).query("recovered==True")[
+                       "group=control"].sum() / n_control
+    rate_treatment = df_data.query(query_gender).query("recovered==True")[
+                         "group=treatment"].sum() / n_treatment
+    plot_difference_metric(rate_treatment - rate_control, xval=1, color=color_male)
+    yvals.append(rate_treatment - rate_control)
+
+    query_gender = "gender == 'female'"
+    n_control = df_data.query(query_gender)["group=control"].sum()
+    n_treatment = df_data.query(query_gender)["group=treatment"].sum()
+    rate_control = df_data.query(query_gender).query("recovered==True")[
+                       "group=control"].sum() / n_control
+    rate_treatment = df_data.query(query_gender).query("recovered==True")[
+                         "group=treatment"].sum() / n_treatment
+    plot_difference_metric(rate_treatment - rate_control, xval=2, color=color_female)
+    yvals.append(rate_treatment - rate_control)
+
+    plt.xticks(xvals_all, xlabels, fontsize=fontsize * 0.8)
+
+    yval_buffer = 0.02
+    ymin = np.min(yvals) - yval_buffer
+    ymax = np.max(yvals) + yval_buffer
+    plt.ylim(ymin, ymax)
+
+    ax = plt.gca()
+    # grid
+    ax.grid(axis='y', alpha=0.3)
+    ax.grid(False, axis='x')
+    # Hide the right and top spines
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    return plt.gcf()
+
+
