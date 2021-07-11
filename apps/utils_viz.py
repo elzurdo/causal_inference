@@ -41,6 +41,7 @@ def plot_rates_control_treatment(rate_control, rate_treatment, xstart=0, width=0
     return xvals
 
 
+# TODO: deprecate
 def plot_cohorts_control_treatment(df_data, width = 0.3, fontsize = 20, color_male="orange", color_female="purple"):
     plt.clf()
     plt.figure(figsize=(FIG_WIDTH * 2, FIG_HEIGHT))
@@ -105,6 +106,7 @@ def plot_cohorts_control_treatment(df_data, width = 0.3, fontsize = 20, color_ma
 
     return plt.gcf()
 
+# TODO deprecate
 def plot_rates_counts(df_data, rate_width=0.01, color_population="gray", color_male="orange", color_female="purple", alpha_control=0.7, alpha_treatment=0.3, fontsize=20):
     plt.clf()
     n_control = df_data["group=control"].sum()
@@ -229,5 +231,100 @@ def plot_risk_difference_pop_cohorts(df_data, color_population="lightgray", colo
     ax.spines['top'].set_visible(False)
 
     return plt.gcf()
+
+def plot_rates_vs_size_control_vs_treatment(df_data, display_mode="problem", rate_width = 0.03, alpha=0.5):
+    hatch_male = "."
+    hatch_female = "/"
+
+    color_male = "orange"
+    color_female = "purple"
+    label_male = "males"
+    label_female = "females"
+
+    fig, axs = plt.subplots(nrows=2, ncols=1)
+
+    if "problem" == display_mode:
+        color_male = "gray"
+        color_female = "gray"
+        hatch_male = None
+        hatch_female = None
+        label_male = None
+        label_female = None
+
+    query_gender = "gender == 'male'"
+    n_control = df_data.query(query_gender)["group=control"].sum()
+    n_treatment = df_data.query(query_gender)["group=treatment"].sum()
+    rate_control = df_data.query(query_gender).query("recovered==True")[
+                       "group=control"].sum() / n_control
+    rate_treatment = df_data.query(query_gender).query("recovered==True")[
+                         "group=treatment"].sum() / n_treatment
+    axs[0].bar(rate_control, n_control, width=rate_width, color=color_male,
+               label=label_male, alpha=alpha, hatch=hatch_male)
+    axs[1].bar(rate_treatment, n_treatment, width=rate_width, color=color_male,
+               alpha=alpha, hatch=hatch_male)
+
+    query_gender = "gender == 'female'"
+    n_control = df_data.query(query_gender)["group=control"].sum()
+    n_treatment = df_data.query(query_gender)["group=treatment"].sum()
+    rate_control = df_data.query(query_gender).query("recovered==True")[
+                       "group=control"].sum() / n_control
+    rate_treatment = df_data.query(query_gender).query("recovered==True")[
+                         "group=treatment"].sum() / n_treatment
+    axs[0].bar(rate_control, n_control, width=rate_width, color=color_female,
+               label=label_female, alpha=alpha, hatch=hatch_female)
+    axs[1].bar(rate_treatment, n_treatment, width=rate_width, color=color_female,
+               alpha=alpha, hatch=hatch_female)
+
+    n_control = df_data["group=control"].sum()
+    n_treatment = df_data["group=treatment"].sum()
+    y_min = 0
+    y_max = n_treatment
+
+    if "problem" == display_mode:
+        rate_control = df_data.query("recovered==True")[
+                           "group=control"].sum() / n_control
+        rate_treatment = df_data.query("recovered==True")[
+                             "group=treatment"].sum() / n_treatment
+        axs[0].plot([rate_control, rate_control], [y_min, y_max], color="red",
+                    label="population")
+        axs[1].plot([rate_treatment, rate_treatment], [y_min, y_max], color="red")
+
+    axs[0].set_xlim(0., 1.)
+    axs[1].set_xlim(0., 1.)
+    axs[0].set_ylim(y_min, y_max)
+    axs[1].set_ylim(y_min, y_max)
+
+    axs[0].grid(axis='y', alpha=0.3)
+    axs[0].grid(False, axis='x')
+    # Hide the right and top spines
+    axs[0].spines['right'].set_visible(False)
+    axs[0].spines['top'].set_visible(False)
+
+    axs[1].grid(axis='y', alpha=0.3)
+    axs[1].grid(False, axis='x')
+    # Hide the right and top spines
+    axs[1].spines['right'].set_visible(False)
+    axs[1].spines['top'].set_visible(False)
+
+    axs[0].set_ylabel("no. of participants")
+    axs[1].set_ylabel("no. of participants")
+    axs[1].set_xlabel("recovery rate")
+
+    ax0_2 = axs[0].twinx()
+    ax0_2.spines['right'].set_visible(False)
+    ax0_2.spines['top'].set_visible(False)
+    ax0_2.set_yticks([])
+    ax0_2.set_ylabel("Control", fontsize=20, rotation=270)
+
+    ax1_2 = axs[1].twinx()
+    ax1_2.spines['right'].set_visible(False)
+    ax1_2.spines['top'].set_visible(False)
+    ax1_2.set_yticks([])
+    ax1_2.set_ylabel("Treatment", fontsize=20, rotation=270)
+
+    axs[0].legend(loc="upper left")
+    plt.tight_layout()
+
+    return fig
 
 

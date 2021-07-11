@@ -66,8 +66,6 @@ st.sidebar.write(f"{males_treatment_frac * 100.:0.1f}% of the treatment are male
 males_control = males - males_treatment
 females_control = females - females_treatment
 
-display_ace = st.sidebar.checkbox('Visualise ACE')
-
 # --- Treatment success rates ---
 success_rate_control = st.sidebar.checkbox('Modify group/cohort success rates')
 
@@ -135,6 +133,8 @@ stats_str = None
 if np.isclose(rd_population,ace_population):
     stats_str = "No Simpson's Paradox"
 
+str_solution = 'Visualise ACE'
+str_visualise_details = 'Rate details'
 if np.sign(rd_males) * np.sign(rd_females):
     if ~np.isclose(rd_population,ace_population):
         stats_str = "Simpson's Paradox!"
@@ -144,25 +144,38 @@ if np.sign(rd_males) * np.sign(rd_females):
         if (rd_population < rd_males) & (rd_population < rd_females) & (np.sign(rd_males) == -1):
             stats_str = "Anti Simpson's Paradox!" + r" ($RD_\text{total}<RD_\text{male}, RD_\text{female}$)"
 
+        str_visualise_details = 'Problem details'
+        str_solution = "Visualise solution"
 
 
 if mode_calculator == mode_chosen:
     st.markdown(stats_str)
+    display_ace = st.checkbox(str_solution)
 
     if display_ace:
         ace_to_plot = ace_population
+        str_visualise_details = 'Solution details'
     else:
         ace_to_plot = None
     fig_rds = utils_viz.plot_risk_difference_pop_cohorts(df, ace=ace_to_plot)
     st.pyplot(fig_rds)
 
-    with st.beta_expander('Visualise rates control vs. treatment'):
-        fig_rates = utils_viz.plot_cohorts_control_treatment(df)
-        st.pyplot(fig_rates)
+    with st.beta_expander(str_visualise_details):
+        display_mode = "problem"
+        if display_ace:
+            display_mode = "solution"
+        fig_problem_solution = utils_viz.plot_rates_vs_size_control_vs_treatment(df, display_mode=display_mode)
+        st.pyplot(fig_problem_solution)
 
-    with st.beta_expander('Visualise rates against no. of participants'):
-        fig_rates_participants = utils_viz.plot_rates_counts(df)
-        st.pyplot(fig_rates_participants)
+
+
+    # with st.beta_expander('Visualise rates control vs. treatment'):
+    #     fig_rates = utils_viz.plot_cohorts_control_treatment(df)
+    #     st.pyplot(fig_rates)
+    #
+    # with st.beta_expander('Visualise rates against no. of participants'):
+    #     fig_rates_participants = utils_viz.plot_rates_counts(df)
+    #     st.pyplot(fig_rates_participants)
 
 with st.beta_expander('Equations Used'):
     st.write(utils_text.equations_explanation_rd())
