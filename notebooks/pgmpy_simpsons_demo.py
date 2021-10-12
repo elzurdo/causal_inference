@@ -448,9 +448,6 @@ pd.Series(ys).value_counts(normalize=True)
 data = pd.DataFrame({z_var: zs, x_var: xs, y_var: ys})
 
 data.head(6)
-# -
-
-cpd_Y.values[gender][group]
 
 # +
 for gender in [0, 1]:
