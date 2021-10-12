@@ -16,6 +16,10 @@
 # **Warning**  
 # Simpson's Paradox is mind bending 🤯 as it is non inuitive at first.  With that said ... it is worth the effort as it is the gateway drug to Causal Inference.  
 
+# This notebook may be used locally or in Google Colab:  
+#
+# <a href="https://colab.research.google.com/github/elzurdo/causal_inference/blob/pgmpy-demo/notebooks/pgmpy_simpsons_demo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="First: Open In Colab"/></a>
+
 from pgmpy.models import BayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import CausalInference
@@ -464,7 +468,7 @@ for gender in [0, 1]:
         print("-" * 20)
         
         
-        
+
 
 # +
 # ACE - Average Causal Effect; 
