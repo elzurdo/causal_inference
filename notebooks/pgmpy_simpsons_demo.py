@@ -24,7 +24,7 @@ from pgmpy.inference import CausalInference
 #
 # The premise is an imaginary, but plausible, pharma experiment on 2,000 sick patients that were equally distributed to two groups: 
 # * `control` - received a placebo
-# * `treatment` - received a trial drug
+# * `treatment` - received a trial drug   
 #
 #
 # The outcome is measured as binary: 
@@ -34,17 +34,38 @@ from pgmpy.inference import CausalInference
 # A third parameter that is tracked is gender with values `male` and `female`. 
 #
 #
+# This a simple system of three binary variables:
+# * `Group` - the treatment variable
+# * `Outcome` - the target varaible 
+# * `Gender` - additional information
+#
+#
+#
+#
 # Note: All details of the problem and solution are detailed in [this slide deck](https://docs.google.com/presentation/d/1W-D9bZ5KMyuGGm9CsSRmQIPoxiMw03HFK7Rd10og9Ps/edit#slide=id.ge338c9a319_0_31). 
 #
 
-from IPython.display import Image
-Image(filename='/Users/eyal.kazin/Desktop/simpsons_paradox_table.png')
-
-# Here we see that the "Treatment - Control" metric of the population is in contradiction to those of its cohorts:  
+# In the following we examine the distribution of the Recovery Rates (target variable ) according to the treatment variable `Group` as well as the `Gender` cohorts:   
+#
+#
+# ![Screenshot 2021-10-12 at 08 42 47](https://user-images.githubusercontent.com/6064016/136913521-c389ebf5-def8-449f-95dc-9249bac6e942.png)
+#
+# Here we see that the "Treatment - Control" Recovery Rate metric of the population is appears to contradict to those of its cohorts:  
 # * Total Population - `-14%`
 # * Males - `+10%`
 # * Females -  `+10%`
 #
+#
+# This means that one might infer two contradicting conclusions:   
+# * Conclusion 1:  The treatment has a **harmful effect** of absolute `-14%` on the whole population.  
+# * Conclusion 2:  The treatment has a **beneficial effect** of absolute `+10%` of the `male` and `female` cohorts.  
+#
+# In other words the contradicting conclusions say that the drug is deleterious for the whole population but beneficial for the gender cohorts. 
+#
+#
+# This clearly does not make sense.  
+#
+# To resolve this one needs to understand how the data was collect, or the story behind the data.  
 
 # ## Story Behind The Data
 #
@@ -59,9 +80,11 @@ Image(filename='/Users/eyal.kazin/Desktop/simpsons_paradox_table.png')
 # As we see from the numbers above the study is not a randomised control trial.  
 # For some reason the males pertain 80% of the treatment group and only 20% of the control ...
 #
+# ![Screenshot 2021-10-12 at 08 43 03](https://user-images.githubusercontent.com/6064016/136918194-bdfb3d46-2ace-4ffe-90de-2b7930e28e8a.png)
+#
 # The males recovery rate is also lower than that of the females (in both the `control` and `trial` groups).
 #
-# The reason for Simpson's Paradox in this data is two-fold:
+# Hence, the reason for Simpson's Paradox in this data is two-fold:
 # * The treatment varaible `Group` depends on `Gender`
 # * The outcome variable `Outcome` depends on `Gender`
 #
@@ -457,6 +480,14 @@ print(f"ACE = {ace_simulated * 100:0.1f}%")
 
 # # Final Notes
 #
+# Being Confused at this Stage is O.K. 🤯   
+#
+#
+# ![Homer](https://media.giphy.com/media/3o6MbbwX2g2GA4MUus/giphy.gif "homer")
+#
+#
+# Credit: this giphy is pulled from [Giphy.com](https://giphy.com/gifs/season-3-the-simpsons-3x5-3o6MbbwX2g2GA4MUus).
+
 # ## Lord's Paradox
 #
 # Here we used binary data for all three parameters.  
@@ -464,15 +495,22 @@ print(f"ACE = {ace_simulated * 100:0.1f}%")
 # Simpson's Paradox also arises for the case of continuous variables,  
 # which happens to known under the name *Lord's Paradox*.  
 #
-# This is a nice illustration for gain intuition.  
+# The following two illustrations help to gain an intuition.  
 #
-# <img src="https://analyticsindiamag.com/wp-content/uploads/2018/12/simpsons-paradox.jpg" width = 500 />
+# Imagine that the treatment variable is continuous (e.g, medicine in milligrams) as it the outcome (health score). 
 #
-#
-# The figure shows that even though for the population the trend appears to be positive (red line), 
-# for each cohort the trend is actually negative. 
+# <img src="https://user-images.githubusercontent.com/6064016/136919659-6bef4e4c-9397-42cf-84a4-aaa15c35f6b6.png" width = 300 />
 #
 #
+# The figure above shows that there appears to be a positive correlation between the two (red line). 
+#
+# In the next figure we display the same imaginary (but plausible) data where we color code by the cohort (men, boys, girls and women): 
+#
+# <img src="https://user-images.githubusercontent.com/6064016/136920301-5043296f-da85-4bff-9f6a-95439f27df30.png" width = 300 />
+#
+# We now see that for all the cohorts the treatment is deleterious on the outcome (anti-correlation). 
+#
+# Credit: this image was modified from the original version from [@infowetrust](https://infowetrust.com/).
 
 # ## Mastering Simpson's Paradox 
 #
@@ -497,3 +535,5 @@ print(f"ACE = {ace_simulated * 100:0.1f}%")
 # * [Simpson's Calculator](https://bit.ly/simpson-calculator) - an interactive demo
 
 # <img src="http://www.theagitator.net/wp-content/uploads/simpsonsparadox-470x363.jpg" />
+#
+# Credit: This image is pulled from [The Agitator.net](http://www.theagitator.net/wp-content/uploads/simpsonsparadox-470x363.jpg)
