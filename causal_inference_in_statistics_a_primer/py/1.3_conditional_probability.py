@@ -1,6 +1,37 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
+# # Study quesiton 1.3.1: Lolly Pop Variable Evens
+#
+# > *Identify the variables and events invoked in the lollipop story of Study question 1.2.4.*
+#
+# **Variables**  
+# * treatment type: drug/placebo  
+# * outcome type: sick/recovered  
+# * lollipop: got/not
+#
+#
+# **Events**  
+# Single variable events (8 total)- 
+# * A patient got a drug
+# * A patient got a placebo
+# * Outcome sick
+# * Outcome recovered
+# * A patient got a lollipop
+# * A patient did not get a lollipop
+#
+# Double variable events (12 events = 4 options for each pair X 3 pairs) -  
+# * A patient got a drug and the outcome was sick
+# * A patient got a drug and the outcome was recovered 
+# * A patient got a placebo and the outcome was sick
+# * A patient got a placebo and the outcome was recovered   
+# ...
+#
+#
+# Triple variable events (16 events = 2 outcomes per variable ^ (3 variables))
+# * A patient got a drug and a lollipop and the outcome was sick  
+# ...
+
 # # Study question 1.3.2: Genders in High School
 #
 # > *Consider Table 1.5 showing the relationship between gender and education level in the U.S. adult population.     
@@ -57,15 +88,15 @@ df.query("(highest == @highest) & (gender == @gender)")["occurence"].sum() / df.
 # # Study question 1.3.3
 # > *Consider the casino problem described in Section 1.3.7* 
 #
-# $P(11|craps) = \frac{1}{18}$  
-# $P(11|roulette) = \frac{1}{38}$
-#
 # $$P(number) = \sum_{game} P(number|game)P(game) $$
 #
 # $$P(game|number) = \frac{P(number|game)P(game)}{P(number)}$$
 #
 #
 # > (a) Compute $P(“craps”|“11”)$ assuming that there are twice as many roulette tables as craps games at the casino.
+#
+# $P(11|craps) = \frac{1}{18}$  
+# $P(11|roulette) = \frac{1}{38}$
 #
 #
 # $P(roulette) = 2 P(craps)$  
@@ -75,14 +106,26 @@ df.query("(highest == @highest) & (gender == @gender)")["occurence"].sum() / df.
 #
 # $$P(11) = P(11|craps)P(craps) + P(11|roulette)P(roulette) = 1/18 \cdot 1/3 + 1/38 \cdot 2/3 = 0.036$$
 #
-# $$P(craps|11) = \frac{P(11|craps)P(craps)}{P(11)} = \frac{1/18 \cdot 1/3}{1/18 \cdot 1/3 + 1/38 \cdot 2/3 } = 0.5135 $$
+# $$P(craps|11) = \frac{P(11|craps)P(craps)}{P(11)} = \frac{1/18 \cdot 1/3}{1/18 \cdot 1/3 + 1/38 \cdot 2/3 } = 51.35\% $$
 
 (1/18 * 1/3)/(1/18 * 1/3 + 1/38 * 2/3)
 
 # > (b) Compute P(“roulette”|“10”) assuming that there are twice as many craps games as roulette tables at the casino.
 #
+# $P(10|craps) = \frac{1}{12}$  
+# $P(10|roulette) = \frac{1}{38}$
+#
+#
+# $2 P(roulette) =  P(craps)$  
+# $2 P(roulette) + P(craps) = 1$  
+# $\rightarrow P(craps) = \frac{2}{3}, P(roulette) = \frac{1}{3}$
+#
+#
+# $$P(10) = P(10|craps)P(craps) + P(10|roulette)P(roulette) = 1/12 \cdot 2/3 + 1/38 \cdot 1/3 = 0.064$$
+#
+# $$P(roulette|10) = \frac{P(10|roulette)P(roulette)}{P(10)} = \frac{1/38 \cdot 1/3}{1/12 \cdot 2/3 + 1/38 \cdot 1/3 } = 13.63\% $$
 
-
+(1/38 * 1/3) / (1/12 * 2/3 + 1/38 * 1/3)
 
 # # Study question 1.3.4
 # > *Suppose we have three cards. Card 1 has two black faces, one on each side; Card 2 has two white faces; and Card 3 has one white face and one back face. You select a card at random and place it on the table. You find that it is black on the face-up side. What is the probability that the face-down side of the card is also black?*
@@ -156,6 +199,23 @@ df.query("(highest == @highest) & (gender == @gender)")["occurence"].sum() / df.
 # $Y$ - the door with the car  
 # $Z$ - the door opened by the host   
 #
+# We compare 
+# * $P(Y=X|Z)$ - case where chosen door has the car given choice of host
+# * $P(Y\ne X|Z)$ - case where chosen door does not has the car given choice of host
+#
+# And will use:
+# * $P(Z|Y = X)=\frac{1}{2}$ - host has two options
+# * $P(Z|Y \ne X)=1$ - host has only one option 
+#
+# $$P(Y=X|Z) = \frac{P(Z|Y=X)P(Y=X)}{P(Z)}$$
+# $$P(Y\ne X|Z) = \frac{P(Z|Y\ne X)P(Y \ne X)}{P(Z)}$$
+#
+# We can then divide
+#
+# $$\frac{P(Y\ne X|Z)}{P(Y=X|Z)} = \frac{P(Z|Y\ne X)P(Y \ne X)}{P(Z|Y=X)P(Y=X)}$$
+#
+# **Previous answer**
+#
 # Without loss of generality, we need to solve for   
 # $$P(Y=B| X=A, Z=C) > P(Y=A| X=A, Z=C)$$  
 #
@@ -164,13 +224,15 @@ df.query("(highest == @highest) & (gender == @gender)")["occurence"].sum() / df.
 # $P(Y=B| X=A, Z=C) = \frac{P(X=A, Z=C | Y=B)P(Y=B)}{P(X=A, Z=C)}$    
 # $P(Y=A| X=A, Z=C) = \frac{P(X=A, Z=C | Y=A)P(Y=A)}{P(X=A, Z=C)}$   
 #
-# Most comonents here are equal so we need to prove:  
+# Most components here are equal so we need to prove:  
 # $$P(X=A, Z=C | Y=B) > P(X=A, Z=C | Y=A)$$ 
 #
 # In the case where $Y=B$, the host has only one choice.  
 # In the case where $Y=A$, the host has two choices.   
 #
 # $$P(X=A, Z=C | Y=B) = 2 \times P(X=A, Z=C | Y=A)$$ 
+
+
 
 
 
@@ -264,7 +326,7 @@ df.query("(highest == @highest) & (gender == @gender)")["occurence"].sum() / df.
 # =  \frac{9}{16}\frac{1}{4} + (1 - \frac{3}{2} + \frac{9}{16}) \frac{3}{4} = \frac{9}{64} + \frac{1}{16} = \frac{13}{64} \approx 0.2$ 
 #
 
-# ## Study question 1.5.4
+# # Study question 1.5.4
 #
 # > *Define the structural model that corresponds to the Monty Hall problem, and use it to describe the joint distribution of all variables.*
 #
@@ -286,7 +348,7 @@ df.query("(highest == @highest) & (gender == @gender)")["occurence"].sum() / df.
 # Z= \text{choose one of} \begin{cases}
 #  D - \{X\} \ \ \ \text{      if  X = Y},\\
 #  D - \{X, Y\} \text{  if  X \ne Y}\\
-# \end{cases}$
+# \end{cases} = D - \{X,Y\}$
 #
 #
 # For joint distributions we'll look at examples: 

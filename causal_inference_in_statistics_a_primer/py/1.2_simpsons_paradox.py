@@ -133,46 +133,30 @@ pass
 # outcome <-- stone size --> treatment type --> outcome
 #
 #
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
 # They should most definitely look at the more granular data.  
 #
-# We have graph:  
-# Recovery <--- Stone --> Treatment --> Recovery   
 #
-# Assuming a 50% chance between large and small they should choose the 
-#
-# This assumes failure  
-#
-# severity ...
+
+# +
+import daft
+
+pgm = daft.PGM(aspect=1.2, node_unit=1.75)
+pgm.add_node("stone", r"Stone", 4, 3)
+pgm.add_node("treatment", r"Treatment", 2, 3)
+pgm.add_node("outcome", r"Outcome", 3, 2)
+pgm.add_edge("stone", "treatment")
+pgm.add_edge("treatment", "outcome")
+pgm.add_edge("stone", "outcome")
+pgm.render()
+# -
 
 # > (b) *There are two doctors in a small town. Each has performed 100 surgeries in his career, which are of two types: one very difficult surgery and one very easy surgery. The first doctor performs the easy surgery much more often than the difficult surgery and the second doctor performs the difficult surgery more often than the easy surgery. You need surgery, but you do not know whether your case is easy or difficult. Should you consult the success rate of each doctor over all cases, or should you consult their success rates for the easy and difficult cases separately, to maximize the chance of a successful surgery?*
 #
+# Graph   
 #
-# Each performed 100 surgeries.  
-# Surgery: Difficult, Easy.  
+# outcome <-- surgery <-- doctor --> outcome   
 #
-# Dr. A: More Easy than Difficult.   
-# Dr. B: More Difficult than Easy.  
-#
-# Graph assumptions:  
-# * The doctor is chosen is independent of the surgery  
-# * The surgery (difficult, easy) listens to the doctor
-#
-
-
+# Since the outcome success depends both on the surgery type and the performing doctor we should consult their easy and difficult cases separately and then build the ACE function.
 
 # +
 import daft
@@ -186,9 +170,6 @@ pgm.add_edge("surgery", "outcome")
 pgm.add_edge("doctor", "outcome")
 pgm.render()
 # -
-
-
-
 # # Study Q4
 #
 # Study question 1.2.4  
