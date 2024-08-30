@@ -21,7 +21,7 @@ if mode_calculator == mode_chosen:
     st.write(utils_text.disclaimer_calculator(mode_calculator, mode_tutorial))
 
 
-with st.beta_expander('Overview'):
+with st.expander('Overview'):
     st.write(utils_text.intro_text())
 
 # --- default values ---
@@ -35,8 +35,8 @@ male_treatment_success_rate_paradox = 0.8
 female_treatment_success_rate_paradox = 0.4
 
 
-treatments = np.int(st.sidebar.number_input('Treatments:', format="%d", value=treatments_default))
-controls = np.int(st.sidebar.number_input('Controls:', format="%d", value=controls_default))
+treatments = int(st.sidebar.number_input('Treatments:', format="%d", value=treatments_default))
+controls = int(st.sidebar.number_input('Controls:', format="%d", value=controls_default))
 
 people = treatments + controls
 
@@ -50,13 +50,13 @@ females_frac = 1. - males_frac
 st.sidebar.write(f"{females_frac * 100.:0.1f}% of the population are females")
 st.sidebar.write(f"{males_frac * 100.:0.1f}% of the population are males")
 
-males = np.int(people * males_frac)
+males = int(people * males_frac)
 females = people - males
 
 # --- Treatment split by gender ---
 males_treatment_frac = st.sidebar.slider(f"male treatment fraction (i.e, of {treatments:,})", min_value=min_male_ratio, max_value=1. - min_male_ratio, step=0.01, value=male_treatment_frac_paradox)
 
-males_treatment = np.int(treatments * males_treatment_frac)
+males_treatment = int(treatments * males_treatment_frac)
 females_treatment = treatments - males_treatment
 
 st.sidebar.write(f"{(1. - males_treatment_frac) * 100.:0.1f}% of the treatment are females")
@@ -92,10 +92,10 @@ male_control_r = np.round(male_control_r, 2)
 female_control_r = np.round(female_control_r, 2)
 
 # --- Table Format ---
-male_treatment_success = np.int(male_treatment_r * males_treatment)
-male_control_success   = np.int(male_control_r   * males_control)
-female_treatment_success = np.int(female_treatment_r * females_treatment)
-female_control_success   = np.int(female_control_r   * females_control)
+male_treatment_success = int(male_treatment_r * males_treatment)
+male_control_success   = int(male_control_r   * males_control)
+female_treatment_success = int(female_treatment_r * females_treatment)
+female_control_success   = int(female_control_r   * females_control)
 
 
 male_treatment_failure = males_treatment - male_treatment_success
@@ -160,7 +160,7 @@ if mode_calculator == mode_chosen:
     fig_rds = utils_viz.plot_risk_difference_pop_cohorts(df, ace=ace_to_plot)
     st.pyplot(fig_rds)
 
-    with st.beta_expander(str_visualise_details):
+    with st.expander(str_visualise_details):
         display_mode = "problem"
         if display_ace:
             display_mode = "solution"
@@ -177,17 +177,17 @@ if mode_calculator == mode_chosen:
     #     fig_rates_participants = utils_viz.plot_rates_counts(df)
     #     st.pyplot(fig_rates_participants)
 
-with st.beta_expander('Equations Used'):
+with st.expander('Equations Used'):
     st.write(utils_text.equations_explanation_rd())
 
     st.write(utils_text.equations_exaplanation_ace())
 
     st.write(utils_text.equations_exaplanation_ace_do_operation())
 
-with st.beta_expander("Simpson's Paradox: A Gateway To Causal Inference" ):
+with st.expander("Simpson's Paradox: A Gateway To Causal Inference" ):
     st.write(utils_text.gateway())
 
-with st.beta_expander("Who was Simpson?"):
+with st.expander("Who was Simpson?"):
     st.write(utils_text.edward())
 
 st.write(utils_text.created_by())
