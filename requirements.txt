@@ -1,3 +1,2 @@
-pandas==2.2.2
 daft==0.1.0
 streamlit==1.38.0
