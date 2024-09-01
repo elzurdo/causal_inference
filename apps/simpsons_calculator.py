@@ -20,7 +20,6 @@ st.write(utils_text.header())
 if mode_calculator == mode_chosen:
     st.write(utils_text.disclaimer_calculator(mode_calculator, mode_tutorial))
 
-
 with st.expander('Overview'):
     st.write(utils_text.intro_text())
 
@@ -112,9 +111,16 @@ pd.DataFrame({0: [male_treatment_success, male_control_success, "male", True],
              index=["group=treatment", "group=control", "gender","recovered"]).T
 
 
+st.markdown("# Data")
+
+st_data_explanation = "The table below shows results of a mock clinical trial."
+st_data_explanation += " Each of ther four rows is a different cohort males or females who have recovered or not. Columns indicate no. of participatns in each group (Treatment, Control), Gender and the Outcome."
+st_data_explanation += " (🪄 Use the sliders on the left sidebar to change the values.)"
+st.markdown(st_data_explanation)
+# displaying the DataFrame
 df
 
-
+st.markdown("# Visualsation & Interpretation")
 rd_population = (male_treatment_success + female_treatment_success)/ treatments -  (male_control_success + female_control_success)/controls
 rd_males = male_treatment_success / males_treatment - male_control_success / males_control
 rd_females = female_treatment_success / females_treatment - female_control_success / females_control
@@ -129,43 +135,59 @@ ace_population = rd_males * males_frac + rd_females * females_frac
 #
 # stats_str = rd_stats_str + ace_stats_str
 
-stats_str = None
-if np.isclose(rd_population,ace_population):
-    stats_str = "No Simpson's Paradox"
+rd_pop_str = r"$RD_\text{pop}$"
+rd_male_str = r"$RD_\text{male}$"
+rd_female_str = r"$RD_\text{female}$"
+stats_str = "In this case"
+if np.isclose(rd_population, ace_population):
+    stats_str += f" there is no Simpson's Paradox since {rd_pop_str} is the average of {rd_male_str} and {rd_female_str}."
 
 str_solution = 'Visualise ACE'
 str_visualise_details = 'Rate details'
+
 if np.sign(rd_males) * np.sign(rd_females):
-    if ~np.isclose(rd_population,ace_population):
-        stats_str = "Simpson's Paradox!"
+    if ~np.isclose(rd_population, ace_population):
+        stats_str += f" we see Simpson's Paradox since {rd_pop_str} is not the average of {rd_male_str} and {rd_female_str}."
 
         if (rd_population > rd_males) & (rd_population > rd_females) & (np.sign(rd_males) == 1):
-            stats_str = "Anti Simpson's Paradox!" + r" ($RD_\text{total}>RD_\text{male}, RD_\text{female}$)"
+            stats_str += f"\ninterestingly we see that {rd_pop_str} > ({rd_male_str}, {rd_female_str})"
         if (rd_population < rd_males) & (rd_population < rd_females) & (np.sign(rd_males) == -1):
-            stats_str = "Anti Simpson's Paradox!" + r" ($RD_\text{total}<RD_\text{male}, RD_\text{female}$)"
+            stats_str += f"\ninterestingly we see that {rd_pop_str} < ({rd_male_str}, {rd_female_str})" 
 
-        str_visualise_details = 'Problem details'
+        str_visualise_details = 'Detailed visualisation of problem'
         str_solution = "Visualise solution"
 
 
 if mode_calculator == mode_chosen:
-    st.markdown(stats_str)
+    interpretaion_str = "For each cohort ('population' superset and subsets 'male' and 'female')"
+    interpretaion_str += f" we calculate the ***Risk Difference*** defined as\\{utils_text.equation_rd}"
+    st.markdown(interpretaion_str)
+
     display_ace = st.checkbox(str_solution)
 
     if display_ace:
         ace_to_plot = ace_population
-        str_visualise_details = 'Solution details'
+        str_visualise_details = 'Detailed visualisation of solution'
+        stats_str += " The Average Casual Effect (ACE) is the correct population average."
     else:
         ace_to_plot = None
     fig_rds = utils_viz.plot_risk_difference_pop_cohorts(df, ace=ace_to_plot)
     st.pyplot(fig_rds)
 
+    st.markdown(stats_str)
+
     with st.expander(str_visualise_details):
+        str_details = "Each panel shows two cohort results (male, female) of the Control (top) and Treatment (bottom) groups: recovery rates against number counts."
         display_mode = "problem"
         if display_ace:
             display_mode = "solution"
+        else:
+            str_details += " The red lines inidcate the average recovery rate of the Treatment/Control"
         fig_problem_solution = utils_viz.plot_rates_vs_size_control_vs_treatment(df, display_mode=display_mode)
+        st.markdown(str_details) 
         st.pyplot(fig_problem_solution)
+        if not display_ace:
+            st.markdown("\nIdentify whos average is higher 'Treatment' or 'Control'? Now tick the 'Visaulise solution' box above and compare results.")
 
 
 
@@ -177,6 +199,7 @@ if mode_calculator == mode_chosen:
     #     fig_rates_participants = utils_viz.plot_rates_counts(df)
     #     st.pyplot(fig_rates_participants)
 
+st.markdown("# Miscellaneous")
 with st.expander('Equations Used'):
     st.write(utils_text.equations_explanation_rd())
 

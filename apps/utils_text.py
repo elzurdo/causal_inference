@@ -3,10 +3,10 @@ def header():
     text = \
     f""" 
     ## 🧮 Simpson's Calculator - An Interactive Demo
-    **Simpson's "Paradox" is a problem of data misinterpretation and serves as an excellent example to learn about causal analysis.**
+    **Simpson's Paradox is a classiccal case of data misinterpretation and serves as an excellent first step into causal reasoning.**
 
 
-    > *Causation is not merely an aspect of statistics - it is an addition to statistics* - Judea Pearl
+    > *Simpsons Pardox* - When a trend exists in subgroups but reverse for the whole.
     """
 
     return text
@@ -32,7 +32,7 @@ def intro_text():
     You find that males treatment group performs better than the male control group, and 
     you reach a similar conclusion for the females.  Curiously, though, when you aggregate all the results you get the exact opposite finding!
 
-    Here you'll examine tables containing mock, but plausible, results of a control triage to better understand 
+    Here you can examine tables of mock, but plausible, results of a control trial to better understand 
     the problem ... and its solution. Along the way you will learn about confounding factors 
     and how to adjust for them in the context of causal analysis.
 
@@ -42,11 +42,10 @@ def intro_text():
 
     return text
 
-def equations_explanation_rd():
-    equation_rd = r'''
+equation_rd = r'''
     $$RD =  P(\text{recovery=True}|\text{group=treatment}) - P(\text{recovery=True}|\text{group=control})$$
     '''
-
+def equations_explanation_rd():
     text = "The ***Risk Difference*** (**RD**) to used describe the recovery rate differences " \
            "between the groups:"
     text += r"$\\$" + f"{equation_rd}"
@@ -57,7 +56,7 @@ def equations_exaplanation_ace():
     equation_ace_using_rd = r"$$ACE = \sum_\text{strata}RD_\text{stratum}P(\text{stratum}) = RD_{\text{male}} P(\text{male}) + RD_{\text{female}} P(\text{female})$$"
 
     text = r"$\\$" + "The ***Average Causal Effect*** (**ACE**) is accounts for possible imbalances in the cohort ratios:"
-    text += r"$\\$" + f"{equation_ace_using_rd}"
+    text += r"$\\$ " + f"{equation_ace_using_rd}"
 
     # equation_ace = r"$$ACE = P(\text{recovery}|do(\text{treatment})) - P(\text{recovery}|do(\text{control}))$$"
 
@@ -67,7 +66,7 @@ def equations_exaplanation_ace_do_operation():
     equation_ace = r"$$ACE = P(\text{recovery=True}|do(\text{group=treatment})) - P(\text{recovery=True}|do(\text{group=control}))$$"
 
     text = r"$\\$" + "ACE is derived by applying **do-operation** surgery on a Graph Model:"
-    text += r"$\\$" + f"{equation_ace}"
+    text += r"$\\$ " + f"{equation_ace}"
 
 
     return text
@@ -102,8 +101,9 @@ def created_by():
     """
     Created by: Eyal Kazin 
     ([site](https://elzurdo.github.io/), 
+    [Medium: @eyal-kazin](https://medium.com/@eyal-kazin)
     [LinkedIN](https://www.linkedin.com/in/eyal-kazin-0b96227a/), 
-    [@eyalkazin](https://twitter.com/eyalkazin))
+    [twitter: @eyalkazin](https://twitter.com/eyalkazin))
     """
 
     return text

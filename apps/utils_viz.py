@@ -286,8 +286,8 @@ def plot_rates_vs_size_control_vs_treatment(df_data, display_mode="problem", rat
         rate_treatment = df_data.query("recovered==True")[
                              "group=treatment"].sum() / n_treatment
         axs[0].plot([rate_control, rate_control], [y_min, y_max], color="red",
-                    label="population")
-        axs[1].plot([rate_treatment, rate_treatment], [y_min, y_max], color="red")
+                    label="Control average")
+        axs[1].plot([rate_treatment, rate_treatment], [y_min, y_max], color="red", label="Treatment average")
 
     axs[0].set_xlim(0., 1.)
     axs[1].set_xlim(0., 1.)
@@ -323,6 +323,7 @@ def plot_rates_vs_size_control_vs_treatment(df_data, display_mode="problem", rat
     ax1_2.set_ylabel("Treatment", fontsize=20, rotation=270)
 
     axs[0].legend(loc="upper left")
+    axs[1].legend(loc="upper left")
     plt.tight_layout()
 
     return fig
