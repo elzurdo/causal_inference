@@ -220,6 +220,8 @@ def plot_risk_difference_pop_cohorts(df_data, color_population="lightgray", colo
     yval_buffer = 0.02
     ymin = np.min(yvals) - yval_buffer
     ymax = np.max(yvals) + yval_buffer
+    ymin = np.min([ymin, 0.])  # in case ymin is larger than zero
+    ymax = np.max([ymax, 0.])  # in case ymax is smaller than zero
     plt.ylim(ymin, ymax)
 
     ax = plt.gca()
