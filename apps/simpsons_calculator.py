@@ -26,12 +26,11 @@ with st.expander('Overview'):
 # --- default values ---
 treatments_default = 1000
 controls_default = treatments_default
-male_frac_default = 0.5     # Gender split
-success_rate_default = 0.7
+male_frac_default = 0.5     # P(male)  - Gender split 
 
-male_treatment_frac_paradox = 0.2
-male_treatment_success_rate_paradox = 0.8
-female_treatment_success_rate_paradox = 0.4
+male_treatment_frac_paradox = 0.8  # P(treatment|male)
+male_treatment_success_rate_paradox = 0.5  # P(recovery|treatment, male)
+female_treatment_success_rate_paradox = 0.9  # P(recovery|treatment, female)
 
 
 treatments = int(st.sidebar.number_input('Treatments:', format="%d", value=treatments_default))
